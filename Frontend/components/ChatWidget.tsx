@@ -11,7 +11,7 @@ const ChatWidget: React.FC = () => {
     {
       id: '1',
       role: 'assistant',
-      content: "Welcome to ASTU FreshStart. I'm your specialized academic companion. How can I assist your studies today?",
+      content: "Welcome to ASTU ጀማሪ. I'm your specialized academic companion. How can I assist your studies today?",
       timestamp: new Date()
     }
   ]);
@@ -37,7 +37,7 @@ const ChatWidget: React.FC = () => {
         model: 'gemini-3-flash-preview',
         contents: input,
         config: {
-          systemInstruction: 'You are FreshStart AI, a highly professional academic assistant for Adama Science and Technology University (ASTU). Provide scholarly, accurate, and concise information about campus life, the schools (EECS, Mechanical, Applied Sciences, etc.), and academic policy. Tone: Dignified, helpful, scholarly.',
+          systemInstruction: 'You are ጀማሪAI, a highly professional academic assistant for Adama Science and Technology University (ASTU). Provide scholarly, accurate, and concise information about campus life, the schools (EECS, Mechanical, Applied Sciences, etc.), and academic policy. Tone: Dignified, helpful, scholarly.',
           temperature: 0.7,
         }
       });

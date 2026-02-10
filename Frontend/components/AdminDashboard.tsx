@@ -9,7 +9,7 @@ const dataBar = [
   { name: 'Mech', queries: 3000 },
   { name: 'Chem', queries: 2000 },
   { name: 'Civil', queries: 2780 },
-  { name: 'Fresh', queries: 4890 },
+  { name: 'ጀማሪ', queries: 4890 },
 ];
 
 const dataPie = [
@@ -53,11 +53,10 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-[1.8rem] transition-all font-bold text-sm ${
-                    activeTab === item.id 
-                      ? 'bg-teal-500 text-white shadow-xl shadow-teal-100 dark:shadow-none' 
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-[1.8rem] transition-all font-bold text-sm ${activeTab === item.id
+                      ? 'bg-teal-500 text-white shadow-xl shadow-teal-100 dark:shadow-none'
                       : 'hover:bg-teal-50 dark:hover:bg-teal-900 text-teal-400'
-                  }`}
+                    }`}
                 >
                   <item.icon size={18} />
                   {item.label}
@@ -163,9 +162,9 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dataBar}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#92a06c', fontSize: 10, fontWeight: 700}} dy={15} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#92a06c', fontSize: 10, fontWeight: 700}} />
-                      <Tooltip cursor={{fill: '#f4f6f0'}} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#92a06c', fontSize: 10, fontWeight: 700 }} dy={15} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#92a06c', fontSize: 10, fontWeight: 700 }} />
+                      <Tooltip cursor={{ fill: '#f4f6f0' }} />
                       <Bar dataKey="queries" radius={[12, 12, 0, 0]}>
                         {dataBar.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={index === 0 ? '#556B2F' : '#b6c096'} />
@@ -203,7 +202,7 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                   {dataPie.map((entry, index) => (
                     <div key={index} className="flex items-center justify-between text-xs font-bold">
                       <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[index]}} />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }} />
                         <span className="text-teal-400 uppercase tracking-widest">{entry.name}</span>
                       </div>
                       <span className="text-teal-900 dark:text-teal-50">{entry.value}</span>

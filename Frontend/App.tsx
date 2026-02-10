@@ -64,7 +64,7 @@ const App: React.FC = () => {
             <img src="/astuLogo.jpg" alt="ASTU Logo" className="w-10 h-10 object-contain" />
           </div>
           <span className="text-2xl font-bold font-display tracking-tight text-teal-900 dark:text-teal-50">
-            FreshStart<span className="text-teal-500 italic">AI</span>
+            ጀማሪ<span className="text-teal-500 italic">AI</span>
           </span>
         </div>
 

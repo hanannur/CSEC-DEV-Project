@@ -40,7 +40,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
               <span className="text-teal-500 italic serif font-light">Sustainable Progress.</span>
             </h1>
             <p className="text-lg text-teal-700/80 dark:text-teal-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              FreshStart AI is the digital heartbeat of ASTU, integrating RAG-powered scholarly intelligence with modern university management.
+              ጀማሪAI is the digital heartbeat of ASTU, integrating RAG-powered scholarly intelligence with modern university management.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -209,7 +209,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
               <div className="bg-white p-2 rounded-2xl">
                 <img src="/astuLogo.jpg" alt="ASTU Logo" className="w-8 h-8 object-contain" />
               </div>
-              <span className="text-3xl font-bold font-display uppercase tracking-tighter">ASTU FreshStart</span>
+              <span className="text-3xl font-bold font-display uppercase tracking-tighter">ASTU ጀማሪ</span>
             </div>
             <p className="text-teal-400 max-w-sm text-lg font-medium leading-relaxed">Adama Science and Technology University is a premier destination for higher education in engineering and technology in Ethiopia.</p>
             <div className="flex items-center gap-6">
@@ -235,7 +235,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between text-[10px] font-black uppercase tracking-widest text-teal-600 gap-8">
-          <p>© 2024 FreshStart AI for Adama Science & Technology University. All Rights Reserved.</p>
+          <p>© 2024 ጀማሪAI for Adama Science & Technology University. All Rights Reserved.</p>
           <div className="flex gap-8">
             <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
             <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
