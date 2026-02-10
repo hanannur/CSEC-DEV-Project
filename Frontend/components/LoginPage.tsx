@@ -86,7 +86,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
               <div className="bg-white p-3 rounded-2xl shadow-xl shadow-teal-900/20 rotate-[-4deg] hover:rotate-0 transition-transform duration-500">
                 <img src="/astuLogo.jpg" alt="ASTU Logo" className="w-10 h-10 object-contain" />
               </div>
-              <span className="text-3xl font-black font-display uppercase tracking-tighter">ASTU ጀማሪ</span>
+              <span className="text-3xl font-black font-display uppercase tracking-tighter">ጀማሪAI</span>
             </div>
             <h2 className="text-5xl font-black font-display leading-[1.1] mb-6">
               Empowering <br />

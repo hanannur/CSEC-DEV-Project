@@ -11,7 +11,7 @@ const ChatWidget: React.FC = () => {
     {
       id: '1',
       role: 'assistant',
-      content: "Welcome to ASTU ጀማሪ. I'm your specialized academic companion. How can I assist your studies today?",
+      content: "Welcome to ጀማሪAI. I'm your specialized academic companion. How can I assist your studies today?",
       timestamp: new Date()
     }
   ]);

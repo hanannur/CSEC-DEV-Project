@@ -209,7 +209,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
               <div className="bg-white p-2 rounded-2xl">
                 <img src="/astuLogo.jpg" alt="ASTU Logo" className="w-8 h-8 object-contain" />
               </div>
-              <span className="text-3xl font-bold font-display uppercase tracking-tighter">ASTU ጀማሪ</span>
+              <span className="text-3xl font-bold font-display uppercase tracking-tighter">ጀማሪAI</span>
             </div>
             <p className="text-teal-400 max-w-sm text-lg font-medium leading-relaxed">Adama Science and Technology University is a premier destination for higher education in engineering and technology in Ethiopia.</p>
             <div className="flex items-center gap-6">
