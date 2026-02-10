@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshStart AI - ASTU Student Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#e6f7f9',
+                            100: '#cceff3',
+                            200: '#99dfe7',
+                            300: '#66cfdb',
+                            400: '#33bfcf',
+                            500: '#17a2b8', // ASTU Teal
+                            600: '#1389a0',
+                            700: '#0f7088',
+                            800: '#0b5770',
+                            900: '#073e58',
+                            950: '#032540',
+                        },
+                        clay: {
+                            50: '#fdf8f6',
+                            100: '#fbeee9',
+                            500: '#d57a66',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bricolage Grotesque', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-display {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .glass {
+            background: rgba(255, 255, 252, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(23, 162, 184, 0.1);
+        }
+
+        .dark .glass {
+            background: rgba(3, 37, 64, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .paper-texture {
+            background-color: #fafaf8;
+            background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+        }
+
+        .dark .paper-texture {
+            background-color: #032540;
+            background-image: none;
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+    <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="paper-texture text-teal-950 dark:text-teal-50 transition-colors duration-500">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

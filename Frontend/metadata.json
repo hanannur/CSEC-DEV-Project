@@ -1,0 +1,8 @@
+{
+  "name": "FreshStart AI",
+  "description": "A modern university assistant platform designed to help students navigate campus life, manage schedules, and interact with AI-driven academic support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
