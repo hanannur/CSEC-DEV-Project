@@ -15,6 +15,12 @@ if (!GEMINI_API_KEY) {
     console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
 
+const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
+
+if (!GEMINI_API_KEY || !VOYAGE_API_KEY) {
+    console.warn('WARNING: API keys are not fully defined in environment variables. RAG service will not function correctly.');
+}
+
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 
 export interface RAGResult {
@@ -58,23 +64,25 @@ export const chunkText = (text: string, size: number = 600, overlap: number = 10
 
 export const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
-        console.log(`[RAG] Generating embedding via direct API: models/gemini-embedding-001`);
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`;
-        const data = {
-            content: {
-                parts: [{ text }]
+        console.log(`[RAG] Generating embedding via Voyage AI: voyage-3-large`);
+        const response = await axios.post('https://api.voyageai.com/v1/embeddings', {
+            input: [text],
+            model: 'voyage-3-large'
+        }, {
+            headers: {
+                'Authorization': `Bearer ${VOYAGE_API_KEY}`,
+                'Content-Type': 'application/json'
             }
-        };
-        const response = await axios.post(url, data);
+        });
 
-        if (response.data && response.data.embedding && response.data.embedding.values) {
-            return response.data.embedding.values;
+        if (response.data && response.data.data && response.data.data[0].embedding) {
+            return response.data.data[0].embedding;
         } else {
-            throw new Error('Invalid response format from Gemini API');
+            throw new Error('Invalid response format from Voyage AI API');
         }
     } catch (error: any) {
-        const errorMsg = error.response?.data?.error?.message || error.message;
-        console.error('Gemini Embedding Error (Direct):', errorMsg);
+        const errorMsg = error.response?.data?.detail || error.message;
+        console.error('Voyage Embedding Error:', errorMsg);
         throw new Error(`Embedding failed: ${errorMsg}`);
     }
 };
@@ -109,7 +117,7 @@ export const getRelevantContext = async (query: string, topK: number = 5): Promi
 };
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
@@ -130,7 +138,7 @@ export const generateAIResponse = async (query: string, context: string): Promis
 
 export const extractCalendarEvents = async (text: string): Promise<void> => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const prompt = `
         You are a data extraction expert. Extract all academic events from the following text (likely an academic calendar).

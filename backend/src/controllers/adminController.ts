@@ -2,8 +2,75 @@ import { Request, Response } from 'express';
 import Document from '../models/Document';
 import fs from 'fs';
 import pdf from 'pdf-parse';
-import { chunkText, generateEmbedding, extractCalendarEvents } from '../services/ragService';
+import { chunkText, generateEmbedding, extractCalendarEvents, extractTextFromFile } from '../services/ragService';
 import Embedding from '../models/Embedding';
+
+export const embedText = async (req: any, res: Response) => {
+    try {
+        const { text, name, category } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ message: 'Text content is required' });
+        }
+
+        // 1. Create a "Virtual" Document record for tracking
+        const document = await Document.create({
+            name: name || `Text-Embed-${Date.now()}`,
+            filename: 'manual_text_input',
+            path: 'memory', // Not a physical file
+            size: Buffer.byteLength(text),
+            type: 'text/plain',
+            status: 'Processing',
+            metadata: {
+                category: category || 'General',
+                uploadedBy: req.user._id,
+                isManual: true
+            }
+        });
+
+        // 2. Chunk and Embed
+        const chunks = chunkText(text);
+        const embeddingIds: any[] = [];
+        for (const chunk of chunks) {
+            const vector = await generateEmbedding(chunk);
+            const emb = await Embedding.create({
+                documentId: document._id,
+                text: chunk,
+                embedding: vector
+            });
+            embeddingIds.push(emb._id);
+        }
+
+        document.chunks = embeddingIds;
+        document.status = 'Indexed';
+        await document.save();
+
+        res.status(201).json({
+            message: 'Text embedded successfully',
+            documentId: document._id,
+            chunks: chunks.length
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+export const getEmbedding = async (req: Request, res: Response) => {
+    try {
+        const embedding = await Embedding.findById(req.params.id);
+        if (!embedding) {
+            return res.status(404).json({ message: 'Embedding not found' });
+        }
+        res.json({
+            id: embedding._id,
+            text: embedding.text,
+            dimensions: embedding.embedding.length,
+            vector: embedding.embedding // This will be the 1024 items
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
 
 export const uploadDocument = async (req: any, res: Response) => {
     try {
@@ -97,15 +164,18 @@ const processDocument = async (docId: string): Promise<number> => {
             await Embedding.deleteMany({ documentId: doc._id });
 
             // 3. Generate and save embeddings for each chunk
+            const embeddingIds: any[] = [];
             for (const chunk of chunks) {
                 const vector = await generateEmbedding(chunk);
-                await Embedding.create({
+                const emb = await Embedding.create({
                     documentId: doc._id,
                     text: chunk,
                     embedding: vector
                 });
+                embeddingIds.push(emb._id);
             }
 
+            doc.chunks = embeddingIds;
             console.log(`Indexed ${chunks.length} chunks for ${doc.name}`);
 
             // 4. If it's a calendar, extract events
