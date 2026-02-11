@@ -9,7 +9,7 @@ const generateToken = (id: string) => {
 };
 
 export const registerUser = async (req: Request, res: Response) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     try {
         const userExists = await User.findOne({ email });
@@ -22,7 +22,7 @@ export const registerUser = async (req: Request, res: Response) => {
             name,
             email,
             password,
-            role: role || 'student',
+            role: 'student',
         });
 
         if (user) {
@@ -32,7 +32,7 @@ export const registerUser = async (req: Request, res: Response) => {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar,
-                token: generateToken(user._id as string),
+                token: generateToken(user._id.toString()),
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
@@ -45,6 +45,29 @@ export const registerUser = async (req: Request, res: Response) => {
 export const authUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
+    // Hardcoded Admin Access
+    if (email === 'admin@astu.edu.et' && password === 'admin123') {
+        let adminUser = await User.findOne({ email: 'admin@astu.edu.et' });
+
+        if (!adminUser) {
+            adminUser = await User.create({
+                name: 'System Admin',
+                email: 'admin@astu.edu.et',
+                password: 'admin123', // This will be hashed by the pre-save hook
+                role: 'admin'
+            });
+        }
+
+        return res.json({
+            _id: adminUser._id,
+            name: adminUser.name,
+            email: adminUser.email,
+            role: adminUser.role,
+            avatar: adminUser.avatar,
+            token: generateToken(adminUser._id.toString()),
+        });
+    }
+
     try {
         const user = await User.findOne({ email });
 
@@ -55,7 +78,7 @@ export const authUser = async (req: Request, res: Response) => {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar,
-                token: generateToken(user._id as string),
+                token: generateToken(user._id.toString()),
             });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });

@@ -10,8 +10,6 @@ interface Props {
 }
 
 const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
-  const [role, setRole] = useState<'student' | 'admin'>('student');
-  const [isSignup, setIsSignup] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authStatus, setAuthStatus] = useState<string>('');
   const [provider, setProvider] = useState<'google' | 'github' | 'email' | null>(null);
@@ -114,33 +112,11 @@ const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
         <div className="p-12 lg:p-16 flex flex-col justify-center">
           <div className="mb-10 text-center lg:text-left">
             <h1 className="text-3xl font-black font-display text-teal-900 dark:text-teal-50 mb-2">
-              {isSignup ? 'New Enrollment' : 'Identity Access'}
+              Identity Access
             </h1>
-            <p className="text-teal-400 font-medium">Verify your role within the university ecosystem.</p>
+            <p className="text-teal-400 font-medium">Verify your university credentials to continue.</p>
           </div>
 
-          <div className="flex gap-4 mb-8">
-            <button
-              onClick={() => setRole('student')}
-              className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all font-bold text-sm ${role === 'student'
-                ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-md'
-                : 'border-teal-50 text-teal-400 hover:border-teal-200'
-                }`}
-            >
-              <UserCircle2 size={20} />
-              Student
-            </button>
-            <button
-              onClick={() => setRole('admin')}
-              className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all font-bold text-sm ${role === 'admin'
-                ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-md'
-                : 'border-teal-50 text-teal-400 hover:border-teal-200'
-                }`}
-            >
-              <ShieldCheck size={20} />
-              Staff
-            </button>
-          </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-500 text-sm font-bold animate-in slide-in-from-top-2">
@@ -183,7 +159,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
               type="submit"
               className="w-full bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-100 flex items-center justify-center gap-2 transition-all"
             >
-              {isSignup ? 'Register Portal' : 'Secure Sign In'}
+              Secure Sign In
               <ArrowRight size={18} />
             </button>
           </form>
@@ -210,12 +186,12 @@ const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
           </div>
 
           <p className="text-center text-sm font-medium text-teal-400">
-            {isSignup ? 'Already have an account?' : 'New to ጀማሪAI?'}
+            New to ጀማሪAI?
             <button
               onClick={() => onNavigate(View.REGISTER)}
               className="ml-2 text-teal-500 dark:text-teal-300 font-black hover:underline"
             >
-              {isSignup ? 'Login' : 'Start Enrollment'}
+              Start Enrollment
             </button>
           </p>
         </div>

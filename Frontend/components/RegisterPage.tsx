@@ -10,7 +10,6 @@ interface Props {
 }
 
 const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
-    const [role, setRole] = useState<'student' | 'admin'>('student');
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [authStatus, setAuthStatus] = useState<string>('');
 
@@ -36,7 +35,7 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
         });
 
         try {
-            const response = await api.post('/auth/register', { name, email, password, role });
+            const response = await api.post('/auth/register', { name, email, password });
             onLogin(response.data);
         } catch (err: any) {
             setIsAuthenticating(false);

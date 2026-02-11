@@ -101,19 +101,23 @@ const App: React.FC = () => {
 
             {isPortal && (
               <>
-                <button
-                  onClick={() => setView(View.STUDENT_DASHBOARD)}
-                  className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${view === View.STUDENT_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
-                >
-                  Student Portal
-                </button>
-                <button
-                  onClick={() => setView(View.ADMIN_DASHBOARD)}
-                  className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest flex items-center gap-2 ${view === View.ADMIN_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
-                >
-                  <ShieldAlert size={14} />
-                  Admin Hub
-                </button>
+                {currentUser?.role === 'student' && (
+                  <button
+                    onClick={() => setView(View.STUDENT_DASHBOARD)}
+                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${view === View.STUDENT_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
+                  >
+                    Student Portal
+                  </button>
+                )}
+                {currentUser?.role === 'admin' && (
+                  <button
+                    onClick={() => setView(View.ADMIN_DASHBOARD)}
+                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest flex items-center gap-2 ${view === View.ADMIN_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
+                  >
+                    <ShieldAlert size={14} />
+                    Admin Hub
+                  </button>
+                )}
               </>
             )}
           </div>
