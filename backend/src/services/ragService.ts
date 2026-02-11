@@ -3,7 +3,9 @@ import fs from 'fs';
 import pdf from 'pdf-parse';
 import dotenv from 'dotenv';
 import path from 'path';
+import axios from 'axios';
 import Embedding from '../models/Embedding';
+import CalendarEvent from '../models/CalendarEvent';
 
 dotenv.config();
 
@@ -55,9 +57,26 @@ export const chunkText = (text: string, size: number = 600, overlap: number = 10
 };
 
 export const generateEmbedding = async (text: string): Promise<number[]> => {
-    const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
-    const result = await model.embedContent(text);
-    return result.embedding.values;
+    try {
+        console.log(`[RAG] Generating embedding via direct API: models/gemini-embedding-001`);
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`;
+        const data = {
+            content: {
+                parts: [{ text }]
+            }
+        };
+        const response = await axios.post(url, data);
+
+        if (response.data && response.data.embedding && response.data.embedding.values) {
+            return response.data.embedding.values;
+        } else {
+            throw new Error('Invalid response format from Gemini API');
+        }
+    } catch (error: any) {
+        const errorMsg = error.response?.data?.error?.message || error.message;
+        console.error('Gemini Embedding Error (Direct):', errorMsg);
+        throw new Error(`Embedding failed: ${errorMsg}`);
+    }
 };
 
 export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
@@ -90,7 +109,7 @@ export const getRelevantContext = async (query: string, topK: number = 5): Promi
 };
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
@@ -107,4 +126,67 @@ export const generateAIResponse = async (query: string, context: string): Promis
 
     const result = await model.generateContent(prompt);
     return result.response.text();
+};
+
+export const extractCalendarEvents = async (text: string): Promise<void> => {
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+        const prompt = `
+        You are a data extraction expert. Extract all academic events from the following text (likely an academic calendar).
+        
+        Focus on these types of events:
+        - Registration (start/end)
+        - Semester start/end
+        - Add/Drop periods
+        - Mid exams
+        - Final exams
+        - Breaks/Holidays
+        - Graduation/Result announcements
+        
+        Return the data ONLY as a valid JSON array of objects with this schema:
+        [
+          {
+            "title": "String",
+            "date": "YYYY-MM-DD",
+            "description": "Short description"
+          }
+        ]
+        
+        Rules:
+        1. Only return the JSON. No conversational text.
+        2. Ensure dates are in YYYY-MM-DD format. If only a month/day is available, assume year 2026.
+        3. If no events are found, return an empty array [].
+        
+        Text to process:
+        ${text.substring(0, 15000)}
+      `;
+
+        const result = await model.generateContent(prompt);
+        const jsonText = result.response.text().replace(/```json|```/g, '').trim();
+
+        let events: any[] = [];
+        try {
+            events = JSON.parse(jsonText);
+        } catch (e) {
+            console.error('Failed to parse calendar JSON:', jsonText);
+            return;
+        }
+
+        if (Array.isArray(events) && events.length > 0) {
+            // Clear old events to avoid duplicates when re-uploading
+            await CalendarEvent.deleteMany({});
+
+            const eventsToSave = events.map(event => ({
+                title: event.title,
+                date: new Date(event.date),
+                description: event.description,
+            }));
+
+            await CalendarEvent.insertMany(eventsToSave);
+            console.log(`Successfully extracted ${eventsToSave.length} calendar events.`);
+        }
+    } catch (error) {
+        console.error('Error extracting calendar events:', error);
+    }
 };

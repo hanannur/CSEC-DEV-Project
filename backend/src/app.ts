@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
 import chatRoutes from './routes/chatRoutes';
+import calendarRoutes from './routes/calendarRoutes';
 import { uploadDocument } from './controllers/adminController';
 import { askAI } from './controllers/chatController';
 import { protect, admin } from './middlewares/auth';
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

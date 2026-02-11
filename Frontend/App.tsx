@@ -168,7 +168,7 @@ const App: React.FC = () => {
         {renderView()}
       </main>
 
-      {currentUser && currentUser.role === 'student' && <ChatWidget />}
+      {view === View.STUDENT_DASHBOARD && <ChatWidget />}
     </div>
   );
 };

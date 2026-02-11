@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { User } from '../types';
-import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper, Loader2 } from 'lucide-react';
+import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper, Loader2, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -11,18 +11,23 @@ interface Props {
 
 const StudentDashboard: React.FC<Props> = ({ user }) => {
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const [allEvents, setAllEvents] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [annRes, schRes] = await Promise.all([
+        const [annRes, schRes, calRes] = await Promise.all([
           api.get('/student/news'),
-          api.get('/student/schedule')
+          api.get('/student/schedule'),
+          api.get('/calendar/upcoming')
         ]);
         setAnnouncements(annRes.data);
         setSchedule(schRes.data);
+        setUpcomingEvents(calRes.data.upcoming || []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -31,6 +36,16 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
     };
     fetchData();
   }, []);
+
+  const fetchAllEvents = async () => {
+    try {
+      const res = await api.get('/calendar/all');
+      setAllEvents(res.data);
+      setShowAllEvents(true);
+    } catch (error) {
+      console.error('Error fetching all events:', error);
+    }
+  };
 
   const userName = user?.name || 'Scholar';
   const userAvatar = user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop';
@@ -130,7 +145,12 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
                 <Newspaper size={28} className="text-teal-500" />
                 University News
               </h3>
-              <button className="text-[10px] font-black uppercase tracking-widest text-teal-400 hover:text-teal-700">View All</button>
+              <button
+                onClick={fetchAllEvents}
+                className="text-[10px] font-black uppercase tracking-widest text-teal-400 hover:text-teal-700"
+              >
+                View All
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -138,21 +158,27 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
                 <div className="col-span-2 flex justify-center py-8">
                   <Loader2 className="animate-spin text-teal-500" size={32} />
                 </div>
-              ) : announcements.length > 0 ? (
-                announcements.map((news, i) => (
-                  <div key={news._id || i} className="flex gap-4 group cursor-pointer p-4 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-2xl transition-all border border-transparent hover:border-teal-50">
-                    <div className="w-12 h-12 bg-teal-50 dark:bg-teal-900 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border border-teal-100 dark:border-teal-800 group-hover:bg-teal-500 group-hover:text-white transition-all">
-                      <span className="text-sm font-black leading-none">{new Date(news.date).getDate()}</span>
-                      <span className="text-[7px] uppercase font-black tracking-widest">{new Date(news.date).toLocaleString('default', { month: 'short' })}</span>
+              ) : upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event, i) => (
+                  <div key={i} className={`flex gap-4 group cursor-pointer p-4 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-2xl transition-all border ${event.isToday ? 'border-clay-500 bg-clay-50/30' : 'border-transparent hover:border-teal-50'}`}>
+                    <div className={`w-12 h-12 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border transition-all ${event.isToday ? 'bg-clay-500 text-white border-clay-600' : 'bg-teal-50 dark:bg-teal-900 border-teal-100 dark:border-teal-800 group-hover:bg-teal-500 group-hover:text-white'}`}>
+                      <span className="text-sm font-black leading-none">{event.date.split('-')[2]}</span>
+                      <span className="text-[7px] uppercase font-black tracking-widest">
+                        {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                      </span>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-teal-400">{news.category || 'General'}</span>
-                      <h4 className="text-sm font-bold text-teal-950 dark:text-teal-100 group-hover:text-teal-500 transition-colors leading-tight line-clamp-2">{news.title}</h4>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[8px] font-black uppercase tracking-widest text-teal-400">Academic Calendar</span>
+                        {event.isToday && <span className="text-[8px] font-black uppercase tracking-widest text-clay-500 animate-pulse">● Today</span>}
+                      </div>
+                      <h4 className="text-sm font-bold text-teal-950 dark:text-teal-100 group-hover:text-teal-500 transition-colors leading-tight line-clamp-2">{event.title}</h4>
+                      <p className="text-[10px] text-teal-400 line-clamp-1">{event.description}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="col-span-2 text-center text-teal-400 font-medium py-8">No recent announcements.</p>
+                <p className="col-span-2 text-center text-teal-400 font-medium py-8">No upcoming events found.</p>
               )}
             </div>
           </section>
@@ -236,6 +262,46 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
           </section>
         </div>
       </div>
+
+      {/* View All Modal */}
+      {showAllEvents && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-teal-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-teal-900 w-full max-w-4xl max-h-[80vh] rounded-[4rem] shadow-2xl border-4 border-white dark:border-teal-800 overflow-hidden flex flex-col">
+            <div className="p-10 border-b border-teal-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-3xl font-black font-display text-teal-950 dark:text-teal-50">Academic Calendar</h3>
+                <p className="text-teal-500 font-medium italic">Complete view of all scheduled university events.</p>
+              </div>
+              <button
+                onClick={() => setShowAllEvents(false)}
+                className="p-4 hover:bg-teal-50 rounded-2xl transition-all text-teal-400"
+              >
+                <X size={32} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-10 space-y-6">
+              {allEvents.map((event, i) => (
+                <div key={i} className={`flex items-center justify-between p-6 rounded-3xl border transition-all ${event.isToday ? 'bg-clay-50 border-clay-200' : 'bg-white dark:bg-teal-800/50 border-teal-50'}`}>
+                  <div className="flex items-center gap-8">
+                    <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg ${event.isToday ? 'bg-clay-500' : 'bg-teal-500'}`}>
+                      <span className="text-xl font-black leading-none">{event.date.split('-')[2]}</span>
+                      <span className="text-[10px] uppercase font-black">{new Date(event.date).toLocaleString('default', { month: 'short' })}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-black text-teal-950 dark:text-teal-50">{event.title}</h4>
+                      <p className="text-sm text-teal-500 font-medium">{event.description}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-teal-400">{event.date}</p>
+                    {event.isToday && <p className="text-[10px] font-black uppercase tracking-widest text-clay-500 mt-1 animate-pulse">Happening Today</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

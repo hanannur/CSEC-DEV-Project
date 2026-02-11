@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Document from '../models/Document';
 import fs from 'fs';
 import pdf from 'pdf-parse';
-import { chunkText, generateEmbedding } from '../services/ragService';
+import { chunkText, generateEmbedding, extractCalendarEvents } from '../services/ragService';
 import Embedding from '../models/Embedding';
 
 export const uploadDocument = async (req: any, res: Response) => {
@@ -107,6 +107,13 @@ const processDocument = async (docId: string): Promise<number> => {
             }
 
             console.log(`Indexed ${chunks.length} chunks for ${doc.name}`);
+
+            // 4. If it's a calendar, extract events
+            const lowerName = doc.name.toLowerCase();
+            if (lowerName.includes('calendar') || lowerName.includes('schedule') || extractedText.toLowerCase().includes('academic calendar')) {
+                console.log(`Detecting calendar keywords in ${doc.name}, starting extraction...`);
+                await extractCalendarEvents(extractedText);
+            }
         }
 
         doc.status = 'Indexed';
