@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { View, User } from '../types';
-import { UserCircle2, ShieldCheck, ArrowRight, Lock, Mail, Github, User as UserIcon } from 'lucide-react';
+import { UserCircle2, ShieldCheck, ArrowRight, Lock, Mail, Github, User as UserIcon, AlertCircle } from 'lucide-react';
+import api from '../services/api';
 
 interface Props {
     onNavigate: (view: View) => void;
@@ -13,13 +14,20 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [authStatus, setAuthStatus] = useState<string>('');
 
-    const simulateRegister = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
         setIsAuthenticating(true);
+        setError('');
 
         const steps = [
             'Initializing Enrollment...',
             'Validating Credentials...',
-            'Creating ASTU Profile...',
+            'Syncing ASTU Profile...',
             'Securing Account...'
         ];
 
@@ -27,16 +35,13 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
             setTimeout(() => setAuthStatus(step), index * 800);
         });
 
-        setTimeout(() => {
-            const mockUser: User = {
-                name: 'New Student',
-                email: 'new.student@astu.edu.et',
-                role: 'student',
-                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop',
-                provider: 'email'
-            };
-            onLogin(mockUser);
-        }, 3500);
+        try {
+            const response = await api.post('/auth/register', { name, email, password, role });
+            onLogin(response.data);
+        } catch (err: any) {
+            setIsAuthenticating(false);
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        }
     };
 
     return (
@@ -102,13 +107,23 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
                         <p className="text-teal-400 font-medium">Create your official university identity.</p>
                     </div>
 
-                    <div className="space-y-5 mb-8">
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-500 text-sm font-bold animate-in slide-in-from-top-2">
+                            <AlertCircle size={18} />
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleRegister} className="space-y-5 mb-8">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 ml-4">Full Name</label>
                             <div className="relative">
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-300" size={18} />
                                 <input
                                     type="text"
+                                    required
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     placeholder="Your full name"
                                     className="w-full bg-teal-50/50 dark:bg-teal-950 border border-teal-100 dark:border-teal-800 rounded-2xl py-4 pl-12 pr-6 outline-none focus:ring-4 focus:ring-teal-50 text-sm font-bold transition-all"
                                 />
@@ -120,6 +135,9 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-300" size={18} />
                                 <input
                                     type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     placeholder="id@astu.edu.et"
                                     className="w-full bg-teal-50/50 dark:bg-teal-950 border border-teal-100 dark:border-teal-800 rounded-2xl py-4 pl-12 pr-6 outline-none focus:ring-4 focus:ring-teal-50 text-sm font-bold transition-all"
                                 />
@@ -131,20 +149,23 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-300" size={18} />
                                 <input
                                     type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     className="w-full bg-teal-50/50 dark:bg-teal-950 border border-teal-100 dark:border-teal-800 rounded-2xl py-4 pl-12 pr-6 outline-none focus:ring-4 focus:ring-teal-50 text-sm font-bold transition-all"
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    <button
-                        onClick={simulateRegister}
-                        className="w-full bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-100 flex items-center justify-center gap-2 transition-all mb-6"
-                    >
-                        Register Portal
-                        <ArrowRight size={18} />
-                    </button>
+                        <button
+                            type="submit"
+                            className="w-full bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-100 flex items-center justify-center gap-2 transition-all mb-6"
+                        >
+                            Register Portal
+                            <ArrowRight size={18} />
+                        </button>
+                    </form>
 
                     <p className="text-center text-sm font-medium text-teal-400">
                         Already have an account?

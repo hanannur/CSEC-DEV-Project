@@ -1,8 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, RotateCcw, Leaf, User, Info, Sparkles, MessageCircle } from 'lucide-react';
+import { Send, X, RotateCcw, Leaf, User, Info, Sparkles, MessageCircle, Loader2 } from 'lucide-react';
 import { Message } from '../types';
-import { GoogleGenAI } from '@google/genai';
+import api from '../services/api';
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,39 +15,78 @@ const ChatWidget: React.FC = () => {
       timestamp: new Date()
     }
   ]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await api.get('/chat/history');
+      if (response.data && response.data.messages) {
+        // Map backend messages to frontend message format if needed
+        const mapped = response.data.messages.map((m: any, i: number) => ({
+          id: i.toString(),
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.timestamp)
+        }));
+        setMessages(mapped);
+      }
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isTyping]);
+  }, [messages, isThinking]);
 
   const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isThinking) return;
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    setIsTyping(true);
+    setIsThinking(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: input,
-        config: {
-          systemInstruction: 'You are ጀማሪAI, a highly professional academic assistant for Adama Science and Technology University (ASTU). Provide scholarly, accurate, and concise information about campus life, the schools (EECS, Mechanical, Applied Sciences, etc.), and academic policy. Tone: Dignified, helpful, scholarly.',
-          temperature: 0.7,
-        }
-      });
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: 'assistant', content: response.text || "I'm sorry, I couldn't retrieve that info.", timestamp: new Date() };
+      const response = await api.post('/chat/ask', { query: input });
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response.data.answer,
+        timestamp: new Date()
+      };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
-      const errorMsg: Message = { id: 'err', role: 'assistant', content: "My connection to the ASTU Registry is temporarily unstable.", timestamp: new Date() };
+      const errorMsg: Message = {
+        id: 'err',
+        role: 'assistant',
+        content: "Identity link interrupted. Please verify your connection to the ASTU Excellence Engine.",
+        timestamp: new Date()
+      };
       setMessages(prev => [...prev, errorMsg]);
     } finally {
-      setIsTyping(false);
+      setIsThinking(false);
+    }
+  };
+
+  const clearChat = async () => {
+    if (!window.confirm('Wipe learning history?')) return;
+    try {
+      await api.delete('/chat/history');
+      setMessages([{
+        id: '1',
+        role: 'assistant',
+        content: "Session reset. I am ጀማሪAI, ready for specialized inquiry.",
+        timestamp: new Date()
+      }]);
+    } catch (error) {
+      console.error('Failed to clear history:', error);
     }
   };
 
@@ -69,7 +108,7 @@ const ChatWidget: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setMessages([messages[0]])} className="p-2.5 hover:bg-white/10 rounded-xl transition-colors"><RotateCcw size={18} /></button>
+              <button onClick={clearChat} className="p-2.5 hover:bg-white/10 rounded-xl transition-colors"><RotateCcw size={18} /></button>
               <button onClick={() => setIsOpen(false)} className="p-2.5 hover:bg-white/10 rounded-xl transition-colors"><X size={20} /></button>
             </div>
           </div>
@@ -87,12 +126,11 @@ const ChatWidget: React.FC = () => {
                 </div>
               </div>
             ))}
-            {isTyping && (
+            {isThinking && (
               <div className="flex justify-start">
-                <div className="bg-white dark:bg-teal-900 px-6 py-4 rounded-3xl flex gap-2 items-center border border-teal-100">
-                  <div className="w-1.5 h-1.5 bg-teal-300 rounded-full animate-bounce" />
-                  <div className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                <div className="bg-white dark:bg-teal-900 px-6 py-4 rounded-3xl flex gap-3 items-center border border-teal-100 italic text-teal-500 text-xs font-bold">
+                  <Loader2 size={14} className="animate-spin" />
+                  Processing Excellence Data...
                 </div>
               </div>
             )}
@@ -113,7 +151,7 @@ const ChatWidget: React.FC = () => {
                 placeholder="Query your ASTU Companion..."
                 className="w-full bg-teal-50/50 dark:bg-teal-900 border border-teal-100 rounded-[2rem] py-4 pl-6 pr-14 text-sm font-bold outline-none focus:ring-4 focus:ring-teal-50"
               />
-              <button onClick={handleSend} disabled={!input.trim() || isTyping} className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 bg-teal-500 text-white rounded-[1.2rem] flex items-center justify-center hover:scale-105 transition-all disabled:opacity-20 shadow-lg shadow-teal-100">
+              <button onClick={handleSend} disabled={!input.trim() || isThinking} className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 bg-teal-500 text-white rounded-[1.2rem] flex items-center justify-center hover:scale-105 transition-all disabled:opacity-20 shadow-lg shadow-teal-100">
                 <Send size={18} />
               </button>
             </div>

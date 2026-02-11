@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { Users, FileText, Search, Settings, Shield, Plus, Upload, Trash2, Download, Landmark, Server, Database, Activity } from 'lucide-react';
+import { Users, FileText, Search, Settings, Shield, Plus, Upload, Trash2, Download, Landmark, Server, Database, Activity, Loader2, X, CheckCircle2 } from 'lucide-react';
+import api from '../services/api';
+import { useEffect, useRef } from 'react';
 
 const dataBar = [
   { name: 'EECS', queries: 4000 },
@@ -27,7 +29,65 @@ interface Props {
 
 const AdminDashboard: React.FC<Props> = ({ user }) => {
   const [activeTab, setActiveTab] = useState('docs');
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const adminName = user?.name || 'Administrator';
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get('/admin/documents');
+      setDocuments(response.data);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadStatus('uploading');
+    const formData = new FormData();
+    formData.append('document', file);
+
+    try {
+      await api.post('/admin/documents/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setUploadStatus('success');
+      fetchDocuments();
+      setTimeout(() => setUploadStatus('idle'), 3000);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setUploadStatus('error');
+      setTimeout(() => setUploadStatus('idle'), 3000);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to remove this document from the knowledge base?')) return;
+
+    try {
+      await api.delete(`/admin/documents/${id}`);
+      setDocuments(documents.filter(doc => doc._id !== id));
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
 
   const stats = [
     { label: 'Knowledge Base', value: '1.2k Files', change: '+5%', icon: Database, color: 'text-teal-500', bg: 'bg-teal-50' },
@@ -54,8 +114,8 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-4 px-6 py-4 rounded-[1.8rem] transition-all font-bold text-sm ${activeTab === item.id
-                      ? 'bg-teal-500 text-white shadow-xl shadow-teal-100 dark:shadow-none'
-                      : 'hover:bg-teal-50 dark:hover:bg-teal-900 text-teal-400'
+                    ? 'bg-teal-500 text-white shadow-xl shadow-teal-100 dark:shadow-none'
+                    : 'hover:bg-teal-50 dark:hover:bg-teal-900 text-teal-400'
                     }`}
                 >
                   <item.icon size={18} />
@@ -91,46 +151,86 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                 </div>
               </div>
 
-              <div className="border-4 border-dashed border-teal-200 dark:border-teal-800 rounded-[3rem] p-16 text-center space-y-6 hover:border-teal-400 dark:hover:border-teal-600 transition-all cursor-pointer bg-white/50 dark:bg-teal-950/20 group">
-                <div className="w-24 h-24 bg-teal-100 dark:bg-teal-800 rounded-[2.5rem] flex items-center justify-center mx-auto text-teal-700 group-hover:bg-teal-500 group-hover:text-white transition-all shadow-lg">
-                  <Upload size={40} />
-                </div>
-                <div>
-                  <p className="text-2xl font-black font-display text-teal-900 dark:text-teal-50">Drop Technical Documentation</p>
-                  <p className="text-teal-500 font-medium">Automatic OCR & Vectorization upon upload.</p>
-                </div>
-                <button className="px-10 py-4 bg-teal-800 text-white rounded-2xl shadow-xl hover:bg-teal-900 transition-all font-black text-sm uppercase tracking-widest">
-                  Browse Files
-                </button>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-4 border-dashed border-teal-200 dark:border-teal-800 rounded-[3rem] p-16 text-center space-y-6 hover:border-teal-400 dark:hover:border-teal-600 transition-all cursor-pointer bg-white/50 dark:bg-teal-950/20 group relative overflow-hidden"
+              >
+                <input
+                  type="file"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf"
+                />
+
+                {uploadStatus === 'uploading' ? (
+                  <div className="space-y-4 animate-pulse">
+                    <div className="w-24 h-24 bg-teal-500 rounded-[2.5rem] flex items-center justify-center mx-auto text-white shadow-lg">
+                      <Loader2 size={40} className="animate-spin" />
+                    </div>
+                    <p className="text-2xl font-black font-display text-teal-900 dark:text-teal-50">Vectorizing Document...</p>
+                  </div>
+                ) : uploadStatus === 'success' ? (
+                  <div className="space-y-4 text-teal-600">
+                    <div className="w-24 h-24 bg-teal-500 rounded-[2.5rem] flex items-center justify-center mx-auto text-white shadow-lg">
+                      <CheckCircle2 size={40} />
+                    </div>
+                    <p className="text-2xl font-black font-display">Data Indexed Successfully</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-24 h-24 bg-teal-100 dark:bg-teal-800 rounded-[2.5rem] flex items-center justify-center mx-auto text-teal-700 group-hover:bg-teal-500 group-hover:text-white transition-all shadow-lg">
+                      <Upload size={40} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black font-display text-teal-900 dark:text-teal-50">Drop Technical Documentation</p>
+                      <p className="text-teal-500 font-medium">Automatic OCR & Vectorization upon upload.</p>
+                    </div>
+                    <button className="px-10 py-4 bg-teal-800 text-white rounded-2xl shadow-xl hover:bg-teal-900 transition-all font-black text-sm uppercase tracking-widest">
+                      Browse pdf Files
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="mt-12 space-y-4">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-teal-400 mb-6">Latest Knowledge Synchronized</h4>
-                {[
-                  { name: 'ASTU School Handbook 2024.pdf', size: '12.4 MB', date: 'Oct 12, 2024', status: 'Indexed' },
-                  { name: 'EECS Curriculum Guide.pdf', size: '5.8 MB', date: 'Oct 10, 2024', status: 'Indexed' },
-                  { name: 'Campus Safety Protocols.pdf', size: '2.4 MB', date: 'Oct 08, 2024', status: 'Embedding...' },
-                ].map((doc, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 bg-white dark:bg-teal-900 rounded-3xl shadow-sm border border-teal-50">
-                    <div className="flex items-center gap-6">
-                      <div className="p-4 bg-clay-50 dark:bg-clay-900/40 rounded-2xl text-clay-500">
-                        <FileText size={24} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-lg text-teal-950 dark:text-teal-50 leading-tight">{doc.name}</p>
-                        <p className="text-xs text-teal-400 font-bold uppercase tracking-wide mt-1">{doc.size} • {doc.date}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-8">
-                      <span className={`text-[10px] font-black px-4 py-2 rounded-xl tracking-widest uppercase ${doc.status === 'Indexed' ? 'bg-teal-100 text-teal-700' : 'bg-clay-100 text-clay-700 animate-pulse'}`}>
-                        {doc.status}
-                      </span>
-                      <button className="text-teal-200 hover:text-clay-500 transition-colors">
-                        <Trash2 size={22} />
-                      </button>
-                    </div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-teal-400 mb-6">Knowledge Graph Index</h4>
+                {isLoading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 size={40} className="animate-spin text-teal-500" />
                   </div>
-                ))}
+                ) : documents.length > 0 ? (
+                  documents.map((doc, i) => (
+                    <div key={doc._id || i} className="flex items-center justify-between p-6 bg-white dark:bg-teal-900 rounded-3xl shadow-sm border border-teal-50 transition-all hover:border-teal-200 group">
+                      <div className="flex items-center gap-6">
+                        <div className="p-4 bg-clay-50 dark:bg-clay-900/40 rounded-2xl text-clay-500">
+                          <FileText size={24} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg text-teal-950 dark:text-teal-50 leading-tight">{doc.name}</p>
+                          <p className="text-xs text-teal-400 font-bold uppercase tracking-wide mt-1">
+                            {(doc.size / 1024 / 1024).toFixed(2)} MB • {new Date(doc.uploadDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-8">
+                        <span className={`text-[10px] font-black px-4 py-2 rounded-xl tracking-widest uppercase ${doc.status === 'Indexed' ? 'bg-teal-100 text-teal-700' : 'bg-clay-100 text-clay-700 animate-pulse'}`}>
+                          {doc.status}
+                        </span>
+                        <button
+                          onClick={() => handleDelete(doc._id)}
+                          className="text-teal-200 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={22} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-teal-400 font-medium">
+                    No documents indexed yet.
+                  </div>
+                )}
               </div>
             </div>
           </div>

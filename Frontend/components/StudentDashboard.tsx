@@ -1,13 +1,37 @@
 
 import React from 'react';
 import { User } from '../types';
-import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper } from 'lucide-react';
+import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import api from '../services/api';
 
 interface Props {
   user: User | null;
 }
 
 const StudentDashboard: React.FC<Props> = ({ user }) => {
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [schedule, setSchedule] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [annRes, schRes] = await Promise.all([
+          api.get('/student/news'),
+          api.get('/student/schedule')
+        ]);
+        setAnnouncements(annRes.data);
+        setSchedule(schRes.data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const userName = user?.name || 'Scholar';
   const userAvatar = user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop';
 
@@ -110,21 +134,26 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {[
-                { title: 'ASTU Graduation Ceremony 2024 Schedule Announced', date: 'Oct 14', cat: 'Academics' },
-                { title: 'New Research Partnership with Global Tech Institute', date: 'Oct 12', cat: 'Research' },
-              ].map((news, i) => (
-                <div key={i} className="flex gap-4 group cursor-pointer p-4 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-2xl transition-all border border-transparent hover:border-teal-50">
-                  <div className="w-12 h-12 bg-teal-50 dark:bg-teal-900 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border border-teal-100 dark:border-teal-800 group-hover:bg-teal-500 group-hover:text-white transition-all">
-                    <span className="text-sm font-black leading-none">{news.date.split(' ')[1]}</span>
-                    <span className="text-[7px] uppercase font-black tracking-widest">{news.date.split(' ')[0]}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-teal-400">{news.cat}</span>
-                    <h4 className="text-sm font-bold text-teal-950 dark:text-teal-100 group-hover:text-teal-500 transition-colors leading-tight line-clamp-2">{news.title}</h4>
-                  </div>
+              {isLoading ? (
+                <div className="col-span-2 flex justify-center py-8">
+                  <Loader2 className="animate-spin text-teal-500" size={32} />
                 </div>
-              ))}
+              ) : announcements.length > 0 ? (
+                announcements.map((news, i) => (
+                  <div key={news._id || i} className="flex gap-4 group cursor-pointer p-4 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-2xl transition-all border border-transparent hover:border-teal-50">
+                    <div className="w-12 h-12 bg-teal-50 dark:bg-teal-900 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border border-teal-100 dark:border-teal-800 group-hover:bg-teal-500 group-hover:text-white transition-all">
+                      <span className="text-sm font-black leading-none">{new Date(news.date).getDate()}</span>
+                      <span className="text-[7px] uppercase font-black tracking-widest">{new Date(news.date).toLocaleString('default', { month: 'short' })}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[8px] font-black uppercase tracking-widest text-teal-400">{news.category || 'General'}</span>
+                      <h4 className="text-sm font-bold text-teal-950 dark:text-teal-100 group-hover:text-teal-500 transition-colors leading-tight line-clamp-2">{news.title}</h4>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-2 text-center text-teal-400 font-medium py-8">No recent announcements.</p>
+              )}
             </div>
           </section>
 
@@ -139,25 +168,29 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
             </div>
 
             <div className="space-y-6">
-              {[
-                { title: 'Artificial Intelligence (EECS312)', time: '08:30 AM', loc: 'Block 2, R304', color: 'bg-teal-500' },
-                { title: 'Network Security Lab', time: '01:30 PM', loc: 'EECS Computer Lab 2', color: 'bg-clay-500' },
-                { title: 'Embedded Systems', time: '04:00 PM', loc: 'Main Seminar Hall', color: 'bg-teal-700' },
-              ].map((event, i) => (
-                <div key={i} className="group flex items-center gap-8 p-6 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-[2.5rem] transition-all cursor-pointer border border-transparent hover:border-teal-100">
-                  <div className={`w-16 h-16 ${event.color} rounded-[1.8rem] flex items-center justify-center text-white font-black text-xl shadow-xl shrink-0`}>
-                    {event.time.split(':')[0]}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-xl font-bold text-teal-950 dark:text-teal-50 group-hover:text-teal-500 transition-colors">{event.title}</h4>
-                    <div className="flex items-center gap-6 mt-2 text-[10px] font-bold text-teal-400 uppercase tracking-widest">
-                      <span className="flex items-center gap-1.5"><Clock size={16} /> {event.time}</span>
-                      <span className="flex items-center gap-1.5"><MapPin size={16} /> {event.loc}</span>
-                    </div>
-                  </div>
-                  <ChevronRight size={24} className="text-teal-200 group-hover:text-teal-500 transition-all translate-x-0 group-hover:translate-x-2" />
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="animate-spin text-teal-500" size={32} />
                 </div>
-              ))}
+              ) : schedule.length > 0 ? (
+                schedule.map((event, i) => (
+                  <div key={event._id || i} className="group flex items-center gap-8 p-6 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-[2.5rem] transition-all cursor-pointer border border-transparent hover:border-teal-100">
+                    <div className={`w-16 h-16 ${event.color || 'bg-teal-500'} rounded-[1.8rem] flex items-center justify-center text-white font-black text-xl shadow-xl shrink-0`}>
+                      {event.time.split(':')[0]}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xl font-bold text-teal-950 dark:text-teal-50 group-hover:text-teal-500 transition-colors">{event.title}</h4>
+                      <div className="flex items-center gap-6 mt-2 text-[10px] font-bold text-teal-400 uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5"><Clock size={16} /> {event.time}</span>
+                        <span className="flex items-center gap-1.5"><MapPin size={16} /> {event.location || event.loc}</span>
+                      </div>
+                    </div>
+                    <ChevronRight size={24} className="text-teal-200 group-hover:text-teal-500 transition-all translate-x-0 group-hover:translate-x-2" />
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-teal-400 font-medium py-8">No classes scheduled for today.</p>
+              )}
             </div>
           </section>
         </div>

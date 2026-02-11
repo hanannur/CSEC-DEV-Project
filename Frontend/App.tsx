@@ -8,6 +8,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import ChatWidget from './components/ChatWidget';
 import { Sun, Moon, LogIn, ShieldAlert, LogOut, User as UserIcon } from 'lucide-react';
+import api from './services/api';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>(View.LANDING);
@@ -22,14 +23,35 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await api.get('/auth/me');
+          setCurrentUser(response.data);
+          setView(response.data.role === 'admin' ? View.ADMIN_DASHBOARD : View.STUDENT_DASHBOARD);
+        } catch (error) {
+          localStorage.removeItem('token');
+          setCurrentUser(null);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
+
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
+    if ((user as any).token) {
+      localStorage.setItem('token', (user as any).token);
+    }
     setView(user.role === 'admin' ? View.ADMIN_DASHBOARD : View.STUDENT_DASHBOARD);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     setCurrentUser(null);
     setView(View.LANDING);
   };
