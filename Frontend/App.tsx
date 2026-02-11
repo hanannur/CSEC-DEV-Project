@@ -44,8 +44,8 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
-    if ((user as any).token) {
-      localStorage.setItem('token', (user as any).token);
+    if (user.token) {
+      localStorage.setItem('token', user.token);
     }
     setView(user.role === 'admin' ? View.ADMIN_DASHBOARD : View.STUDENT_DASHBOARD);
   };
@@ -143,7 +143,13 @@ const App: React.FC = () => {
                   <p className="text-xs font-black text-teal-900 dark:text-teal-50">{currentUser.name}</p>
                   <p className="text-[8px] font-bold text-teal-400 uppercase tracking-widest">{currentUser.role}</p>
                 </div>
-                <img src={currentUser.avatar} className="w-10 h-10 rounded-xl object-cover border border-teal-100" alt="Avatar" />
+                <div className="w-10 h-10 rounded-xl border border-teal-100 bg-teal-50 dark:bg-teal-900 flex items-center justify-center text-teal-500">
+                  {currentUser.avatar ? (
+                    <img src={currentUser.avatar} className="w-full h-full rounded-xl object-cover" alt="Avatar" />
+                  ) : (
+                    <UserIcon size={20} />
+                  )}
+                </div>
                 <button
                   onClick={handleLogout}
                   className="p-2.5 bg-teal-50 dark:bg-teal-900 text-teal-500 rounded-xl hover:bg-clay-50 hover:text-clay-500 transition-all"

@@ -8,10 +8,12 @@ export enum View {
 }
 
 export interface User {
+  _id?: string;
   name: string;
   email: string;
   role: 'student' | 'admin';
   avatar: string;
+  token?: string;
   provider?: 'google' | 'github' | 'email';
 }
 

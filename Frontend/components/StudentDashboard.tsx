@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { User } from '../types';
-import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper, Loader2, X } from 'lucide-react';
+import { Calendar, Bell, Search, ChevronRight, User as UserIcon, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper, Loader2, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -48,7 +48,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
   };
 
   const userName = user?.name || 'Scholar';
-  const userAvatar = user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop';
+  const userAvatar = user?.avatar || '';
 
   return (
     <div className="min-h-screen paper-texture dark:bg-teal-950 px-6 lg:px-16 py-12 space-y-12 max-w-7xl mx-auto">
@@ -224,8 +224,12 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
         <div className="space-y-12">
           <section className="bg-teal-500 rounded-[3.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10 text-center space-y-6 py-6">
-              <div className="w-28 h-28 rounded-[2rem] bg-white/20 p-1 mx-auto backdrop-blur-lg border border-white/20">
-                <img src={userAvatar} alt="Profile" className="w-full h-full rounded-[1.8rem] object-cover" />
+              <div className="w-28 h-28 rounded-[2rem] bg-white/20 p-1 mx-auto backdrop-blur-lg border border-white/20 flex items-center justify-center">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="Profile" className="w-full h-full rounded-[1.8rem] object-cover" />
+                ) : (
+                  <UserIcon className="text-white w-12 h-12" />
+                )}
               </div>
               <h3 className="text-3xl font-black font-display">{userName}</h3>
               <p className="text-teal-100/60 font-black uppercase tracking-[0.2em] text-[10px]">ASTU Student Identity</p>
