@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { User } from '../types';
-import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server } from 'lucide-react';
+import { Calendar, Bell, Search, ChevronRight, MapPin, Clock, ExternalLink, Leaf, GraduationCap, Building2, Cpu, Microscope, Server, Newspaper } from 'lucide-react';
 
 interface Props {
   user: User | null;
@@ -99,6 +99,35 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
+          {/* University News Section */}
+          <section className="bg-white dark:bg-teal-900/40 rounded-[3rem] border border-teal-100 dark:border-teal-800 shadow-sm p-10">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black font-display text-teal-950 dark:text-teal-50 flex items-center gap-4">
+                <Newspaper size={28} className="text-teal-500" />
+                University News
+              </h3>
+              <button className="text-[10px] font-black uppercase tracking-widest text-teal-400 hover:text-teal-700">View All</button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[
+                { title: 'ASTU Graduation Ceremony 2024 Schedule Announced', date: 'Oct 14', cat: 'Academics' },
+                { title: 'New Research Partnership with Global Tech Institute', date: 'Oct 12', cat: 'Research' },
+              ].map((news, i) => (
+                <div key={i} className="flex gap-4 group cursor-pointer p-4 hover:bg-teal-50 dark:hover:bg-teal-800/50 rounded-2xl transition-all border border-transparent hover:border-teal-50">
+                  <div className="w-12 h-12 bg-teal-50 dark:bg-teal-900 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border border-teal-100 dark:border-teal-800 group-hover:bg-teal-500 group-hover:text-white transition-all">
+                    <span className="text-sm font-black leading-none">{news.date.split(' ')[1]}</span>
+                    <span className="text-[7px] uppercase font-black tracking-widest">{news.date.split(' ')[0]}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-teal-400">{news.cat}</span>
+                    <h4 className="text-sm font-bold text-teal-950 dark:text-teal-100 group-hover:text-teal-500 transition-colors leading-tight line-clamp-2">{news.title}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <section className="bg-white dark:bg-teal-900/40 rounded-[3rem] border border-teal-100 dark:border-teal-800 shadow-sm p-10">
             <div className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-4">
