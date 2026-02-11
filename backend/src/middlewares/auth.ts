@@ -21,14 +21,14 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
             req.user = user;
             next();
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            console.error(`JWT Error: ${error.message}. Token received: ${token?.substring(0, 10)}...`);
             res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
+        return res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 
