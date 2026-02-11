@@ -3,10 +3,17 @@ import fs from 'fs';
 import pdf from 'pdf-parse';
 import dotenv from 'dotenv';
 import path from 'path';
+import Embedding from '../models/Embedding';
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+if (!GEMINI_API_KEY) {
+    console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 
 export interface RAGResult {
     text: string;
@@ -27,30 +34,68 @@ export const extractTextFromFile = async (filePath: string): Promise<string> => 
     return '';
 };
 
-export const chunkText = (text: string, size: number = 1000, overlap: number = 200): string[] => {
+export const chunkText = (text: string, size: number = 600, overlap: number = 100): string[] => {
     const chunks: string[] = [];
-    let start = 0;
+    const words = text.split(/\s+/);
+    let currentChunk = '';
 
-    while (start < text.length) {
-        const end = Math.min(start + size, text.length);
-        chunks.push(text.substring(start, end));
-        start += size - overlap;
+    for (const word of words) {
+        if ((currentChunk + word).length > size && currentChunk.length > 0) {
+            chunks.push(currentChunk.trim());
+            currentChunk = currentChunk.substring(currentChunk.length - overlap);
+        }
+        currentChunk += ` ${word}`;
+    }
+
+    if (currentChunk.trim().length > 0) {
+        chunks.push(currentChunk.trim());
     }
 
     return chunks;
 };
 
-// Note: For a real vector store, we'd use something like Pinecone or ChromaDB.
-// Here, we'll implement a simple in-memory semantic search or just use plain LLM if small.
-// For this task, I'll store chunks in local files/DB and use cosine similarity on embeddings.
+export const generateEmbedding = async (text: string): Promise<number[]> => {
+    const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+    const result = await model.embedContent(text);
+    return result.embedding.values;
+};
+
+export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    for (let i = 0; i < vecA.length; i++) {
+        dotProduct += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+    }
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+};
+
+export const getRelevantContext = async (query: string, topK: number = 5): Promise<string> => {
+    const queryEmbedding = await generateEmbedding(query);
+    const allEmbeddings = await Embedding.find();
+
+    const similarities = allEmbeddings.map(emb => ({
+        text: emb.text,
+        similarity: cosineSimilarity(queryEmbedding, emb.embedding)
+    }));
+
+    similarities.sort((a, b) => b.similarity - a.similarity);
+
+    return similarities
+        .slice(0, topK)
+        .map(s => s.text)
+        .join('\n\n---\n\n');
+};
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
-    Use the following context to answer the student's question accurately.
-    If the information is not in the context, say you don't know based on the documents.
+    Answer the student's question accurately ONLY using the provided context.
+    If the information is not in the context, say: "I couldn't find that in the document."
     
     Context:
     ${context}

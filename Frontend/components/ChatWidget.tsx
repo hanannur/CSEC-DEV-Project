@@ -54,7 +54,7 @@ const ChatWidget: React.FC = () => {
     setIsThinking(true);
 
     try {
-      const response = await api.post('/chat/ask', { query: input });
+      const response = await api.post('/chat', { question: input });
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

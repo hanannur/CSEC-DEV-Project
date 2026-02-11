@@ -33,6 +33,7 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [indexedChunks, setIndexedChunks] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const adminName = user?.name || 'Administrator';
@@ -59,16 +60,18 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
 
     setIsUploading(true);
     setUploadStatus('uploading');
+    setIndexedChunks(null);
     const formData = new FormData();
     formData.append('document', file);
 
     try {
-      await api.post('/admin/documents/upload', formData, {
+      const response = await api.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      setIndexedChunks(response.data.chunksIndexed);
       setUploadStatus('success');
       fetchDocuments();
-      setTimeout(() => setUploadStatus('idle'), 3000);
+      setTimeout(() => setUploadStatus('idle'), 5000);
     } catch (error) {
       console.error('Upload failed:', error);
       setUploadStatus('error');
@@ -176,6 +179,9 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                       <CheckCircle2 size={40} />
                     </div>
                     <p className="text-2xl font-black font-display">Data Indexed Successfully</p>
+                    {indexedChunks !== null && (
+                      <p className="text-sm font-bold uppercase tracking-widest">{indexedChunks} Chunks Created</p>
+                    )}
                   </div>
                 ) : (
                   <>

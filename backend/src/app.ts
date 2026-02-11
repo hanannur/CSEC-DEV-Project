@@ -8,6 +8,10 @@ import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
 import chatRoutes from './routes/chatRoutes';
+import { uploadDocument } from './controllers/adminController';
+import { askAI } from './controllers/chatController';
+import { protect, admin } from './middlewares/auth';
+import upload from './middlewares/upload';
 
 dotenv.config();
 
@@ -20,7 +24,11 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Core RAG Routes (Requested as direct endpoints)
+app.post('/api/upload', protect, admin, upload.single('document'), uploadDocument);
+app.post('/api/chat', protect, askAI);
+
+// Scoped Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
