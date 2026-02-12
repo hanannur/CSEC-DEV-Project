@@ -40,42 +40,77 @@ export const extractTextFromFile = async (filePath: string): Promise<string> => 
     return '';
 };
 
-export const chunkText = (text: string, size: number = 600, overlap: number = 100): string[] => {
-    const chunks: string[] = [];
+// export const chunkText = (text: string, size: number = 600, overlap: number = 100): string[] => {
+//     const chunks: string[] = [];
+//     const words = text.split(/\s+/);
+//     let currentChunk = '';
+
+//     for (const word of words) {
+//         if ((currentChunk + word).length > size && currentChunk.length > 0) {
+//             chunks.push(currentChunk.trim());
+//             currentChunk = currentChunk.substring(currentChunk.length - overlap);
+//         }
+//         currentChunk += ` ${word}`;
+//     }
+
+//     if (currentChunk.trim().length > 0) {
+//         chunks.push(currentChunk.trim());
+//     }
+
+//     return chunks;
+// };
+
+export const chunkText = (text: string, size = 600, overlap = 100): string[] => {
     const words = text.split(/\s+/);
-    let currentChunk = '';
+    const chunks: string[] = [];
 
-    for (const word of words) {
-        if ((currentChunk + word).length > size && currentChunk.length > 0) {
-            chunks.push(currentChunk.trim());
-            currentChunk = currentChunk.substring(currentChunk.length - overlap);
-        }
-        currentChunk += ` ${word}`;
-    }
+    let start = 0;
 
-    if (currentChunk.trim().length > 0) {
-        chunks.push(currentChunk.trim());
+    while (start < words.length) {
+        const end = Math.min(start + size, words.length);
+        chunks.push(words.slice(start, end).join(" "));
+        start += (size - overlap);
     }
 
     return chunks;
 };
 
+// export const generateEmbedding = async (text: string): Promise<number[]> => {
+//     try {
+//         console.log(`[RAG] Generating embedding via Gemini: embedding-001`);
+//         const model = genAI.getGenerativeModel({ model: "embedding-001" });
+//         const result = await model.embedContent(text);
+//         const embedding = result.embedding;
+//         return embedding.values;
+//     } catch (error: any) {
+//         console.error('Gemini Embedding Error:', error);
+//         throw new Error(`Embedding failed: ${error.message}`);
+//     }
+// };
 export const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
-        // Use "embedding-001" for better compatibility
-        const model = genAI.getGenerativeModel({ model: "embedding-001" });
-        
-        // Using the object structure is safer for the v1beta API
-        const result = await model.embedContent({
-            content: { role: 'user', parts: [{ text }] }
-        });
-        
-        return result.embedding.values;
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
+            {
+                content: {
+                    parts: [{ text }]
+                }
+            }
+        );
+
+        const embedding = response.data.embedding?.values;
+
+        if (!embedding) {
+            throw new Error("No embedding values returned.");
+        }
+
+        return embedding;
     } catch (error: any) {
-        console.error('Gemini Embedding Error:', error);
-        throw new Error(`Embedding failed: ${error.message}`);
+        console.error("Embedding API error:", error?.response?.data || error.message);
+        throw new Error("Embedding failed. Check API key or model access.");
     }
 };
+
 
 export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
     let dotProduct = 0;
@@ -107,7 +142,7 @@ export const getRelevantContext = async (query: string, topK: number = 5): Promi
 };
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
@@ -128,7 +163,7 @@ export const generateAIResponse = async (query: string, context: string): Promis
 
 export const extractCalendarEvents = async (text: string): Promise<void> => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const prompt = `
         You are a data extraction expert. Extract all academic events from the following text (likely an academic calendar).
