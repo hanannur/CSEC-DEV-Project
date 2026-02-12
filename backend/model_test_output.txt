@@ -1,0 +1,13 @@
+Starting model test...
+Testing model: embedding-001
+FAILED: embedding-001 - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent: [404 Not Found] models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+---
+Testing model: text-embedding-004
+FAILED: text-embedding-004 - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent: [404 Not Found] models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+---
+Testing model: models/embedding-001
+FAILED: models/embedding-001 - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent: [404 Not Found] models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+---
+Testing model: models/text-embedding-004
+FAILED: models/text-embedding-004 - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent: [404 Not Found] models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+---

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Document from '../models/Document';
 import fs from 'fs';
 import pdf from 'pdf-parse';
@@ -57,8 +58,19 @@ export const embedText = async (req: any, res: Response) => {
 
 export const getEmbedding = async (req: Request, res: Response) => {
     try {
-        const embedding = await Embedding.findById(req.params.id);
+        const id = req.params.id;
+        console.log(`getEmbedding called with id=${id}`);
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid embedding id' });
+        }
+
+        const embedding = await Embedding.findById(id);
         if (!embedding) {
+            const count = await Embedding.countDocuments({ _id: id });
+            const total = await Embedding.countDocuments();
+            const sample = await Embedding.findOne().select('_id').lean();
+            console.warn(`Embedding ${id} not found (countDocuments=${count}). Total embeddings=${total}, sampleId=${sample?._id}`);
             return res.status(404).json({ message: 'Embedding not found' });
         }
         res.json({

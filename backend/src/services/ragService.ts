@@ -62,11 +62,15 @@ export const chunkText = (text: string, size: number = 600, overlap: number = 10
 
 export const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
-        console.log(`[RAG] Generating embedding via Gemini: embedding-001`);
+        // Use "embedding-001" for better compatibility
         const model = genAI.getGenerativeModel({ model: "embedding-001" });
-        const result = await model.embedContent(text);
-        const embedding = result.embedding;
-        return embedding.values;
+        
+        // Using the object structure is safer for the v1beta API
+        const result = await model.embedContent({
+            content: { role: 'user', parts: [{ text }] }
+        });
+        
+        return result.embedding.values;
     } catch (error: any) {
         console.error('Gemini Embedding Error:', error);
         throw new Error(`Embedding failed: ${error.message}`);
@@ -103,7 +107,7 @@ export const getRelevantContext = async (query: string, topK: number = 5): Promi
 };
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
@@ -124,7 +128,7 @@ export const generateAIResponse = async (query: string, context: string): Promis
 
 export const extractCalendarEvents = async (text: string): Promise<void> => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `
         You are a data extraction expert. Extract all academic events from the following text (likely an academic calendar).

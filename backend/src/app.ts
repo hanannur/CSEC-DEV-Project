@@ -24,10 +24,6 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Core RAG Routes (Requested as direct endpoints)
-// Core RAG Routes (Requested as direct endpoints)
-// app.post('/api/upload', protect, admin, upload.single('document'), uploadDocument); // Moved to adminRoutes
-
 // Scoped Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
