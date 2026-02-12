@@ -1,11 +1,12 @@
 {
     "name": "jemari-ai-backend",
+    "type": "commonjs",
     "version": "1.0.0",
     "description": "Backend for ጀማሪAI - ASTU Academic Companion",
     "main": "dist/server.js",
     "scripts": {
         "start": "node dist/server.js",
-        "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+        "dev": "ts-node --transpile-only src/server.ts",
         "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -32,6 +33,7 @@
         "@types/multer": "^1.4.13",
         "@types/node": "^20.19.33",
         "ts-node-dev": "^2.0.0",
+        "ts-node": "^10.9.1",
         "typescript": "^5.4.5"
     }
 }
