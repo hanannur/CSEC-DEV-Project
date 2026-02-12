@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
-import { View, User } from '../types';
+import { User } from '../types';
 import { UserCircle2, ShieldCheck, ArrowRight, Lock, Mail, Github, User as UserIcon, AlertCircle } from 'lucide-react';
 import api from '../services/api';
 
+import { useNavigate } from 'react-router-dom';
+
 interface Props {
-    onNavigate: (view: View) => void;
     onLogin: (user: User) => void;
 }
 
-const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
+const RegisterPage: React.FC<Props> = ({ onLogin }) => {
+    const navigate = useNavigate();
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [authStatus, setAuthStatus] = useState<string>('');
 
@@ -169,7 +171,7 @@ const RegisterPage: React.FC<Props> = ({ onNavigate, onLogin }) => {
                     <p className="text-center text-sm font-medium text-teal-400">
                         Already have an account?
                         <button
-                            onClick={() => onNavigate(View.LOGIN)}
+                            onClick={() => navigate('/login')}
                             className="ml-2 text-teal-500 dark:text-teal-300 font-black hover:underline"
                         >
                             Login

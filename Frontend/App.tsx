@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, User } from './types';
+import { User } from './types';
 import LandingPage from './components/LandingPage';
 import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
@@ -9,11 +8,13 @@ import RegisterPage from './components/RegisterPage';
 import ChatWidget from './components/ChatWidget';
 import { Sun, Moon, LogIn, ShieldAlert, LogOut, User as UserIcon } from 'lucide-react';
 import api from './services/api';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<View>(View.LANDING);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -30,7 +31,6 @@ const App: React.FC = () => {
         try {
           const response = await api.get('/auth/me');
           setCurrentUser(response.data);
-          // Removed auto-redirect to dashboard to keep landing page as default
         } catch (error) {
           localStorage.removeItem('token');
           setCurrentUser(null);
@@ -47,40 +47,21 @@ const App: React.FC = () => {
     if (user.token) {
       localStorage.setItem('token', user.token);
     }
-    setView(user.role === 'admin' ? View.ADMIN_DASHBOARD : View.STUDENT_DASHBOARD);
+    navigate(user.role === 'admin' ? '/admin' : '/student');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setCurrentUser(null);
-    setView(View.LANDING);
+    navigate('/');
   };
-
-  const renderView = () => {
-    switch (view) {
-      case View.LANDING:
-        return <LandingPage onNavigate={setView} />;
-      case View.LOGIN:
-        return <LoginPage onLogin={handleLoginSuccess} onNavigate={setView} />;
-      case View.REGISTER:
-        return <RegisterPage onLogin={handleLoginSuccess} onNavigate={setView} />;
-      case View.STUDENT_DASHBOARD:
-        return <StudentDashboard user={currentUser} />;
-      case View.ADMIN_DASHBOARD:
-        return <AdminDashboard user={currentUser} />;
-      default:
-        return <LandingPage onNavigate={setView} />;
-    }
-  };
-
-  const isPortal = view === View.STUDENT_DASHBOARD || view === View.ADMIN_DASHBOARD;
 
   return (
     <div className="min-h-screen font-sans text-teal-900 dark:text-teal-50">
       <nav className="fixed top-0 left-0 right-0 z-50 glass h-20 flex items-center justify-between px-6 lg:px-16">
         <div
           className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => setView(View.LANDING)}
+          onClick={() => navigate('/')}
         >
           <div className="bg-white p-2 rounded-2xl group-hover:rotate-12 transition-all duration-300 shadow-md">
             <img src="/astuLogo.jpg" alt="ASTU Logo" className="w-10 h-10 object-contain" />
@@ -93,8 +74,8 @@ const App: React.FC = () => {
         <div className="flex items-center gap-4 lg:gap-10">
           <div className="hidden md:flex gap-8">
             <button
-              onClick={() => setView(View.LANDING)}
-              className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${view === View.LANDING ? 'text-teal-500' : 'text-teal-400'}`}
+              onClick={() => navigate('/')}
+              className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${location.pathname === '/' ? 'text-teal-500' : 'text-teal-400'}`}
             >
               Home
             </button>
@@ -103,16 +84,16 @@ const App: React.FC = () => {
               <>
                 {currentUser.role === 'student' && (
                   <button
-                    onClick={() => setView(View.STUDENT_DASHBOARD)}
-                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${view === View.STUDENT_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
+                    onClick={() => navigate('/student')}
+                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest ${location.pathname === '/student' ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
                   >
                     Student Portal
                   </button>
                 )}
                 {currentUser.role === 'admin' && (
                   <button
-                    onClick={() => setView(View.ADMIN_DASHBOARD)}
-                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest flex items-center gap-2 ${view === View.ADMIN_DASHBOARD ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
+                    onClick={() => navigate('/admin')}
+                    className={`hover:text-teal-500 transition-colors font-bold text-xs uppercase tracking-widest flex items-center gap-2 ${location.pathname === '/admin' ? 'text-teal-500 underline underline-offset-8' : 'text-teal-400'}`}
                   >
                     <ShieldAlert size={14} />
                     Admin Hub
@@ -130,9 +111,9 @@ const App: React.FC = () => {
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {view === View.LOGIN || view === View.REGISTER ? (
+            {location.pathname === '/login' || location.pathname === '/register' ? (
               <button
-                onClick={() => setView(View.LANDING)}
+                onClick={() => navigate('/')}
                 className="text-teal-400 hover:text-teal-900 dark:hover:text-white font-black text-xs uppercase tracking-widest transition-all"
               >
                 Back
@@ -141,14 +122,10 @@ const App: React.FC = () => {
               <div className="flex items-center gap-4 pl-4 border-l border-teal-100 dark:border-teal-800">
                 <div className="hidden lg:block text-right">
                   <p className="text-xs font-black text-teal-900 dark:text-teal-50">{currentUser.name}</p>
-                  <p className="text-[8px] font-bold text-teal-400 uppercase tracking-widest">{currentUser.role}</p>
+                  <p className="text-teal-400 text-[10px] uppercase font-bold tracking-widest">{currentUser.role}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl border border-teal-100 bg-teal-50 dark:bg-teal-900 flex items-center justify-center text-teal-500">
-                  {currentUser.avatar ? (
-                    <img src={currentUser.avatar} className="w-full h-full rounded-xl object-cover" alt="Avatar" />
-                  ) : (
-                    <UserIcon size={20} />
-                  )}
+                <div className="w-10 h-10 rounded-full border border-teal-100 bg-teal-50 dark:bg-teal-900 flex items-center justify-center text-teal-500">
+                  <UserIcon size={20} />
                 </div>
                 <button
                   onClick={handleLogout}
@@ -159,22 +136,35 @@ const App: React.FC = () => {
               </div>
             ) : (
               <button
-                onClick={() => setView(View.LOGIN)}
+                onClick={() => navigate('/login')}
                 className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-2xl font-bold transition-all shadow-lg hover:shadow-teal-200 flex items-center gap-2"
               >
                 <LogIn size={18} />
                 Portal Login
               </button>
-            ) /* Changed back logic and replaced isPortal check with currentUser check */}
+            )}
           </div>
         </div>
       </nav>
 
       <main className="pt-20 min-h-screen">
-        {renderView()}
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLoginSuccess} />} />
+          <Route path="/register" element={<RegisterPage onLogin={handleLoginSuccess} />} />
+          <Route
+            path="/student"
+            element={currentUser ? <StudentDashboard user={currentUser} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/admin"
+            element={currentUser ? <AdminDashboard user={currentUser} /> : <Navigate to="/login" />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </main>
 
-      {view === View.STUDENT_DASHBOARD && <ChatWidget />}
+      {location.pathname === '/student' && <ChatWidget />}
     </div>
   );
 };

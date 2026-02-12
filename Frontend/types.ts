@@ -1,12 +1,3 @@
-
-export enum View {
-  LANDING = 'LANDING',
-  STUDENT_DASHBOARD = 'STUDENT_DASHBOARD',
-  ADMIN_DASHBOARD = 'ADMIN_DASHBOARD',
-  LOGIN = 'LOGIN',
-  REGISTER = 'REGISTER'
-}
-
 export interface User {
   _id?: string;
   name: string;

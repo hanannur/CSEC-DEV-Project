@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
-import { View, User } from '../types';
+import { User } from '../types';
 import { UserCircle2, ShieldCheck, ArrowRight, Lock, Mail, Github, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../services/api';
 
+import { useNavigate } from 'react-router-dom';
+
 interface Props {
   onLogin: (user: User) => void;
-  onNavigate: (view: View) => void;
 }
 
-const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
+const LoginPage: React.FC<Props> = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authStatus, setAuthStatus] = useState<string>('');
   const [provider, setProvider] = useState<'google' | 'github' | 'email' | null>(null);
@@ -188,7 +190,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onNavigate }) => {
           <p className="text-center text-sm font-medium text-teal-400">
             New to ጀማሪAI?
             <button
-              onClick={() => onNavigate(View.REGISTER)}
+              onClick={() => navigate('/register')}
               className="ml-2 text-teal-500 dark:text-teal-300 font-black hover:underline"
             >
               Start Enrollment

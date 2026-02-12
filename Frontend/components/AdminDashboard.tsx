@@ -65,7 +65,7 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
     formData.append('document', file);
 
     try {
-      const response = await api.post('/upload', formData, {
+      const response = await api.post('/admin/documents/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setIndexedChunks(response.data.chunksIndexed);
@@ -215,12 +215,15 @@ const AdminDashboard: React.FC<Props> = ({ user }) => {
                         <div>
                           <p className="font-bold text-lg text-teal-950 dark:text-teal-50 leading-tight">{doc.name}</p>
                           <p className="text-xs text-teal-400 font-bold uppercase tracking-wide mt-1">
-                            {(doc.size / 1024 / 1024).toFixed(2)} MB • {new Date(doc.uploadDate).toLocaleDateString()}
+                            {(doc.size / 1024 / 1024).toFixed(2)} MB • {new Date(doc.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-8">
-                        <span className={`text-[10px] font-black px-4 py-2 rounded-xl tracking-widest uppercase ${doc.status === 'Indexed' ? 'bg-teal-100 text-teal-700' : 'bg-clay-100 text-clay-700 animate-pulse'}`}>
+                        <span
+                          title={doc.errorMessage || ''}
+                          className={`text-[10px] font-black px-4 py-2 rounded-xl tracking-widest uppercase cursor-help ${doc.status === 'Indexed' ? 'bg-teal-100 text-teal-700' : 'bg-clay-100 text-clay-700 animate-pulse'}`}
+                        >
                           {doc.status}
                         </span>
                         <button

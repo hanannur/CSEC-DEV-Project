@@ -9,6 +9,7 @@ interface Props {
   user: User | null;
 }
 
+
 const StudentDashboard: React.FC<Props> = ({ user }) => {
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
@@ -16,6 +17,12 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAllEvents, setShowAllEvents] = useState(false);
   const [allEvents, setAllEvents] = useState<any[]>([]);
+
+  // Department document modal state
+  const [showDeptModal, setShowDeptModal] = useState(false);
+  const [deptDocs, setDeptDocs] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState('');
+  const [deptLoading, setDeptLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +56,21 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
 
   const userName = user?.name || 'Scholar';
   const userAvatar = user?.avatar || '';
+
+  // Handler for department/college button click
+  const handleDeptClick = async (category: string, displayName: string) => {
+    setDeptLoading(true);
+    setDeptName(displayName);
+    setShowDeptModal(true);
+    try {
+      const res = await api.get(`/student/documents?category=${encodeURIComponent(category)}`);
+      setDeptDocs(res.data);
+    } catch (error) {
+      setDeptDocs([]);
+    } finally {
+      setDeptLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen paper-texture dark:bg-teal-950 px-6 lg:px-16 py-12 space-y-12 max-w-7xl mx-auto">
@@ -102,7 +124,11 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
                 { name: 'CoCCA', full: 'Civil & Architecture', icon: Building2 },
                 { name: 'CoMME', full: 'Mechanical & Materials', icon: Microscope },
               ].map((school, i) => (
-                <div key={i} className="bg-white dark:bg-teal-900 p-6 rounded-3xl border border-teal-50 dark:border-teal-800 hover:shadow-xl transition-all cursor-pointer group">
+                <div
+                  key={i}
+                  className="bg-white dark:bg-teal-900 p-6 rounded-3xl border border-teal-50 dark:border-teal-800 hover:shadow-xl transition-all cursor-pointer group"
+                  onClick={() => handleDeptClick(school.name, school.full)}
+                >
                   <school.icon size={24} className="text-teal-500 mb-4 group-hover:scale-110 transition-transform" />
                   <p className="font-black text-teal-950 dark:text-white text-lg leading-tight">{school.name}</p>
                   <p className="text-[10px] text-teal-400 font-bold uppercase tracking-wide mt-1">{school.full}</p>
@@ -127,7 +153,11 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
                 'Applied Mathematics', 'Applied Physics', 'Pharmacy', 'Applied Chemistry',
                 'Applied Biology', 'Applied Geology', 'Industrial Chemistry'
               ].map((dept, i) => (
-                <div key={i} className="bg-teal-50/50 dark:bg-teal-800/50 p-4 rounded-2xl border border-teal-100 dark:border-teal-700 hover:bg-teal-500 hover:text-white transition-all cursor-pointer text-center">
+                <div
+                  key={i}
+                  className="bg-teal-50/50 dark:bg-teal-800/50 p-4 rounded-2xl border border-teal-100 dark:border-teal-700 hover:bg-teal-500 hover:text-white transition-all cursor-pointer text-center"
+                  onClick={() => handleDeptClick(dept, dept)}
+                >
                   <p className="text-[10px] font-black uppercase tracking-tight leading-tight">{dept}</p>
                 </div>
               ))}
@@ -153,7 +183,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {isLoading ? (
                 <div className="col-span-2 flex justify-center py-8">
                   <Loader2 className="animate-spin text-teal-500" size={32} />
@@ -180,7 +210,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
               ) : (
                 <p className="col-span-2 text-center text-teal-400 font-medium py-8">No upcoming events found.</p>
               )}
-            </div>
+            </div> */}
           </section>
 
           <section className="bg-white dark:bg-teal-900/40 rounded-[3rem] border border-teal-100 dark:border-teal-800 shadow-sm p-10">
@@ -222,7 +252,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
         </div>
 
         <div className="space-y-12">
-          <section className="bg-teal-500 rounded-[3.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
+          {/* <section className="bg-teal-500 rounded-[3.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10 text-center space-y-6 py-6">
               <div className="w-28 h-28 rounded-[2rem] bg-white/20 p-1 mx-auto backdrop-blur-lg border border-white/20 flex items-center justify-center">
                 {user?.avatar ? (
@@ -234,7 +264,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
               <h3 className="text-3xl font-black font-display">{userName}</h3>
               <p className="text-teal-100/60 font-black uppercase tracking-[0.2em] text-[10px]">ASTU Student Identity</p>
             </div>
-          </section>
+          </section> */}
 
           <section className="bg-white dark:bg-teal-900/40 rounded-[3rem] border border-teal-100 dark:border-teal-800 shadow-sm p-10">
             <div className="flex items-center gap-4 mb-10">
@@ -302,6 +332,50 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Department Documents Modal */}
+      {showDeptModal && (
+        <div className="fixed inset-0 z-[201] flex items-center justify-center p-6 bg-teal-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-teal-900 w-full max-w-2xl max-h-[80vh] rounded-[3rem] shadow-2xl border-4 border-white dark:border-teal-800 overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-teal-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-black font-display text-teal-950 dark:text-teal-50">{deptName} Documents</h3>
+                <p className="text-teal-500 font-medium italic">Syllabi, guides, and resources for this department.</p>
+              </div>
+              <button
+                onClick={() => setShowDeptModal(false)}
+                className="p-3 hover:bg-teal-50 rounded-2xl transition-all text-teal-400"
+              >
+                <X size={28} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 space-y-4">
+              {deptLoading ? (
+                <div className="flex justify-center py-8"><Loader2 className="animate-spin text-teal-500" size={32} /></div>
+              ) : deptDocs.length > 0 ? (
+                deptDocs.map((doc: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl border border-teal-100 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-800/30">
+                    <div>
+                      <p className="font-bold text-teal-950 dark:text-teal-50 text-sm">{doc.name}</p>
+                      <p className="text-[10px] text-teal-400 font-black uppercase tracking-widest mt-1">Uploaded {new Date(doc.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <a
+                      href={doc.path.replace('backend/', '')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-teal-500 hover:text-teal-700 font-bold text-xs"
+                    >
+                      <ExternalLink size={16} /> View
+                    </a>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-teal-400 font-medium py-8">No documents found for this department.</p>
+              )}
             </div>
           </div>
         </div>

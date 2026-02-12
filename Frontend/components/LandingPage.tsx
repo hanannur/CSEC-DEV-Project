@@ -1,13 +1,12 @@
 
 import React from 'react';
-import { View } from '../types';
+// View import removed
 import { Sparkles, Cpu, Microscope, Building2, ShieldCheck, UserCircle2, ArrowRight, ExternalLink, GraduationCap, Users, Newspaper, MessageSquare } from 'lucide-react';
 
-interface Props {
-  onNavigate: (view: View) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-const LandingPage: React.FC<Props> = ({ onNavigate }) => {
+const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="relative overflow-hidden selection:bg-teal-200 selection:text-teal-900">
       {/* Enhanced Background with Blur and Gradient */}
@@ -45,7 +44,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button
-                onClick={() => onNavigate(View.LOGIN)}
+                onClick={() => navigate('/login')}
                 className="px-10 py-5 bg-teal-500 hover:bg-teal-600 text-white rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-200/50 hover:shadow-2xl hover:shadow-teal-300/50 flex items-center justify-center gap-3 transition-all hover:scale-105"
               >
                 Access the Portal <ArrowRight size={18} />

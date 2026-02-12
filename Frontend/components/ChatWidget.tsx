@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, X, RotateCcw, Leaf, User, Info, Sparkles, MessageCircle, Loader2 } from 'lucide-react';
 import { Message } from '../types';
 import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,17 +17,31 @@ const ChatWidget: React.FC = () => {
     }
   ]);
   const [isThinking, setIsThinking] = useState(false);
+  const [hasToken, setHasToken] = useState<boolean>(!!localStorage.getItem('token'));
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchHistory();
   }, []);
 
   const fetchHistory = async () => {
+    // Require authentication for chat history
+    const token = localStorage.getItem('token');
+    setHasToken(!!token);
+    if (!token) {
+      setMessages([{
+        id: '1',
+        role: 'assistant',
+        content: "Please sign in to access your ASTU Companion chat history.",
+        timestamp: new Date()
+      }]);
+      return;
+    }
+
     try {
       const response = await api.get('/chat/history');
       if (response.data && response.data.messages) {
-        // Map backend messages to frontend message format if needed
         const mapped = response.data.messages.map((m: any, i: number) => ({
           id: i.toString(),
           role: m.role,
@@ -47,6 +62,12 @@ const ChatWidget: React.FC = () => {
   }, [messages, isThinking]);
 
   const handleSend = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     if (!input.trim() || isThinking) return;
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
@@ -54,7 +75,7 @@ const ChatWidget: React.FC = () => {
     setIsThinking(true);
 
     try {
-      const response = await api.post('/chat', { question: input });
+      const response = await api.post('/chat/ask', { question: input });
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -78,6 +99,11 @@ const ChatWidget: React.FC = () => {
   const clearChat = async () => {
     if (!window.confirm('Wipe learning history?')) return;
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
       await api.delete('/chat/history');
       setMessages([{
         id: '1',
@@ -137,11 +163,7 @@ const ChatWidget: React.FC = () => {
           </div>
 
           <div className="p-10 bg-white dark:bg-teal-950 border-t border-teal-100 dark:border-teal-800 space-y-6">
-            <div className="flex flex-wrap gap-2">
-              {['Syllabus Search', 'Library Map', 'EECS Schedule'].map(s => (
-                <button key={s} onClick={() => setInput(s)} className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-teal-50 dark:bg-teal-900 border border-teal-100 rounded-full hover:bg-teal-500 hover:text-white transition-all">{s}</button>
-              ))}
-            </div>
+            
             <div className="relative">
               <input
                 type="text"
