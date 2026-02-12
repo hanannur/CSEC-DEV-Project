@@ -1,50 +1,42 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import fs from 'fs';
-import pdf from 'pdf-parse';
-import dotenv from 'dotenv';
-import path from 'path';
-import axios from 'axios';
-import Embedding from '../models/Embedding';
-import CalendarEvent from '../models/CalendarEvent';
-
-dotenv.config();
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.extractCalendarEvents = exports.generateAIResponse = exports.getRelevantContext = exports.cosineSimilarity = exports.generateEmbedding = exports.chunkText = exports.extractTextFromFile = void 0;
+const generative_ai_1 = require("@google/generative-ai");
+const fs_1 = __importDefault(require("fs"));
+const pdf_parse_1 = __importDefault(require("pdf-parse"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
+const Embedding_1 = __importDefault(require("../models/Embedding"));
+const CalendarEvent_1 = __importDefault(require("../models/CalendarEvent"));
+dotenv_1.default.config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
 if (!GEMINI_API_KEY) {
     console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
-
 if (!GEMINI_API_KEY) {
     console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
-
-export interface RAGResult {
-    text: string;
-    sources: string[];
-}
-
-export const extractTextFromFile = async (filePath: string): Promise<string> => {
-    const ext = path.extname(filePath).toLowerCase();
-    const dataBuffer = fs.readFileSync(filePath);
-
+const genAI = new generative_ai_1.GoogleGenerativeAI(GEMINI_API_KEY || '');
+const extractTextFromFile = async (filePath) => {
+    const ext = path_1.default.extname(filePath).toLowerCase();
+    const dataBuffer = fs_1.default.readFileSync(filePath);
     if (ext === '.pdf') {
-        const data = await pdf(dataBuffer);
+        const data = await (0, pdf_parse_1.default)(dataBuffer);
         return data.text;
-    } else if (ext === '.txt') {
+    }
+    else if (ext === '.txt') {
         return dataBuffer.toString();
     }
-
     return '';
 };
-
-export const chunkText = (text: string, size: number = 600, overlap: number = 100): string[] => {
-    const chunks: string[] = [];
+exports.extractTextFromFile = extractTextFromFile;
+const chunkText = (text, size = 600, overlap = 100) => {
+    const chunks = [];
     const words = text.split(/\s+/);
     let currentChunk = '';
-
     for (const word of words) {
         if ((currentChunk + word).length > size && currentChunk.length > 0) {
             chunks.push(currentChunk.trim());
@@ -52,28 +44,27 @@ export const chunkText = (text: string, size: number = 600, overlap: number = 10
         }
         currentChunk += ` ${word}`;
     }
-
     if (currentChunk.trim().length > 0) {
         chunks.push(currentChunk.trim());
     }
-
     return chunks;
 };
-
-export const generateEmbedding = async (text: string): Promise<number[]> => {
+exports.chunkText = chunkText;
+const generateEmbedding = async (text) => {
     try {
         console.log(`[RAG] Generating embedding via Gemini: embedding-001`);
         const model = genAI.getGenerativeModel({ model: "embedding-001" });
         const result = await model.embedContent(text);
         const embedding = result.embedding;
         return embedding.values;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('Gemini Embedding Error:', error);
         throw new Error(`Embedding failed: ${error.message}`);
     }
 };
-
-export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
+exports.generateEmbedding = generateEmbedding;
+const cosineSimilarity = (vecA, vecB) => {
     let dotProduct = 0;
     let normA = 0;
     let normB = 0;
@@ -84,27 +75,23 @@ export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
     }
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 };
-
-export const getRelevantContext = async (query: string, topK: number = 5): Promise<string> => {
-    const queryEmbedding = await generateEmbedding(query);
-    const allEmbeddings = await Embedding.find();
-
+exports.cosineSimilarity = cosineSimilarity;
+const getRelevantContext = async (query, topK = 5) => {
+    const queryEmbedding = await (0, exports.generateEmbedding)(query);
+    const allEmbeddings = await Embedding_1.default.find();
     const similarities = allEmbeddings.map(emb => ({
         text: emb.text,
-        similarity: cosineSimilarity(queryEmbedding, emb.embedding)
+        similarity: (0, exports.cosineSimilarity)(queryEmbedding, emb.embedding)
     }));
-
     similarities.sort((a, b) => b.similarity - a.similarity);
-
     return similarities
         .slice(0, topK)
         .map(s => s.text)
         .join('\n\n---\n\n');
 };
-
-export const generateAIResponse = async (query: string, context: string): Promise<string> => {
+exports.getRelevantContext = getRelevantContext;
+const generateAIResponse = async (query, context) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
     const prompt = `
     You are ጀማሪAI, an academic assistant for Adama Science and Technology University.
     Answer the student's question accurately ONLY using the provided context.
@@ -117,15 +104,13 @@ export const generateAIResponse = async (query: string, context: string): Promis
     
     Answer:
   `;
-
     const result = await model.generateContent(prompt);
     return result.response.text();
 };
-
-export const extractCalendarEvents = async (text: string): Promise<void> => {
+exports.generateAIResponse = generateAIResponse;
+const extractCalendarEvents = async (text) => {
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
         const prompt = `
         You are a data extraction expert. Extract all academic events from the following text (likely an academic calendar).
         
@@ -155,32 +140,30 @@ export const extractCalendarEvents = async (text: string): Promise<void> => {
         Text to process:
         ${text.substring(0, 15000)}
       `;
-
         const result = await model.generateContent(prompt);
         const jsonText = result.response.text().replace(/```json|```/g, '').trim();
-
-        let events: any[] = [];
+        let events = [];
         try {
             events = JSON.parse(jsonText);
-        } catch (e) {
+        }
+        catch (e) {
             console.error('Failed to parse calendar JSON:', jsonText);
             return;
         }
-
         if (Array.isArray(events) && events.length > 0) {
             // Clear old events to avoid duplicates when re-uploading
-            await CalendarEvent.deleteMany({});
-
+            await CalendarEvent_1.default.deleteMany({});
             const eventsToSave = events.map(event => ({
                 title: event.title,
                 date: new Date(event.date),
                 description: event.description,
             }));
-
-            await CalendarEvent.insertMany(eventsToSave);
+            await CalendarEvent_1.default.insertMany(eventsToSave);
             console.log(`Successfully extracted ${eventsToSave.length} calendar events.`);
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error extracting calendar events:', error);
     }
 };
+exports.extractCalendarEvents = extractCalendarEvents;

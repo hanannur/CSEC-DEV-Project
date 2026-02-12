@@ -18,7 +18,7 @@ const UserSchema: Schema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: { type: String, enum: ['student', 'admin'], default: 'student' },
-    avatar: { type: String, default: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop' },
+    avatar: { type: String, default: '' },
     provider: { type: String, enum: ['google', 'github', 'email'], default: 'email' }
 }, { timestamps: true });
 

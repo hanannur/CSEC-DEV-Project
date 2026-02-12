@@ -22,6 +22,7 @@ const DocumentSchema: Schema = new Schema({
     size: { type: Number, required: true },
     type: { type: String, required: true },
     status: { type: String, enum: ['Processing', 'Indexed', 'Error'], default: 'Processing' },
+    errorMessage: { type: String },
     metadata: {
         category: { type: String, default: 'General' },
         uploadedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
