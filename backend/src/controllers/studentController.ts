@@ -42,8 +42,31 @@ export const getDepartmentDocuments = async (req: Request, res: Response) => {
         if (!category) {
             return res.status(400).json({ message: 'Category is required' });
         }
+        // Try to fetch real documents
         const docs = await Document.find({ status: 'Indexed', 'metadata.category': category }).select('name filename path createdAt');
-        res.json(docs);
+        if (docs.length > 0) {
+            return res.json(docs);
+        }
+        // If no real docs, return dummy data for demo
+        // You can add more dummy entries as needed
+        if (category === 'Applied Mathematics') {
+            return res.json([
+                {
+                    name: 'Applied Mathematics Syllabus 2026',
+                    filename: 'applied-math-syllabus.pdf',
+                    path: '/static/dummy/applied-math-syllabus.pdf',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    name: 'Mathematics Student Guide',
+                    filename: 'math-guide.pdf',
+                    path: '/static/dummy/math-guide.pdf',
+                    createdAt: new Date().toISOString()
+                }
+            ]);
+        }
+        // Default: no docs
+        res.json([]);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }

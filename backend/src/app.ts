@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -23,6 +24,10 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
+// Serve static dummy files for department docs
+app.use('/static/dummy', express.static(path.join(__dirname, '../static/dummy')));
 
 // Scoped Routes
 app.use('/api/auth', authRoutes);
