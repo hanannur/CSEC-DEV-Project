@@ -15,8 +15,8 @@ if (!GEMINI_API_KEY) {
     console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
 
-if (!VOYAGE_API_KEY) {
-    console.warn('WARNING: VOYAGE_API_KEY is not defined in environment variables. RAG service will not function correctly.');
+if (VOYAGE_API_KEY) {
+    console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
@@ -40,25 +40,7 @@ export const extractTextFromFile = async (filePath: string): Promise<string> => 
     return '';
 };
 
-// export const chunkText = (text: string, size: number = 600, overlap: number = 100): string[] => {
-//     const chunks: string[] = [];
-//     const words = text.split(/\s+/);
-//     let currentChunk = '';
 
-//     for (const word of words) {
-//         if ((currentChunk + word).length > size && currentChunk.length > 0) {
-//             chunks.push(currentChunk.trim());
-//             currentChunk = currentChunk.substring(currentChunk.length - overlap);
-//         }
-//         currentChunk += ` ${word}`;
-//     }
-
-//     if (currentChunk.trim().length > 0) {
-//         chunks.push(currentChunk.trim());
-//     }
-
-//     return chunks;
-// };
 
 export const chunkText = (text: string, size = 600, overlap = 100): string[] => {
     const words = text.split(/\s+/);
@@ -75,21 +57,9 @@ export const chunkText = (text: string, size = 600, overlap = 100): string[] => 
     return chunks;
 };
 
-// export const generateEmbedding = async (text: string): Promise<number[]> => {
-//     try {
-//         console.log(`[RAG] Generating embedding via Gemini: embedding-001`);
-//         const model = genAI.getGenerativeModel({ model: "embedding-001" });
-//         const result = await model.embedContent(text);
-//         const embedding = result.embedding;
-//         return embedding.values;
-//     } catch (error: any) {
-//         console.error('Gemini Embedding Error:', error);
-//         throw new Error(`Embedding failed: ${error.message}`);
-//     }
-// };
 
 
-// Use Voyage-3-large for all embeddings
+
 export const generateEmbedding = async (text: string): Promise<number[]> => {
     
       if (!VOYAGE_API_KEY) throw new Error('VOYAGE_API_KEY is not set in environment variables.');
