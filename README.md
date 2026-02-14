@@ -1,155 +1,126 @@
- 🌟 FreshStart AI – ASTU Student Assistant
+🌟 FreshStart AI – ASTU Student Assistant
 
-```bash
 📌 Project Overview
 
-FreshStart AI is a modern web platform designed to help first-year students at Adama Science and Technology University (ASTU) navigate their academic environment efficiently.
+FreshStart AI is a modern web platform designed to help first-year students
+at Adama Science and Technology University (ASTU) navigate their academic
+environment efficiently.
 
-It integrates a RAG-based AI chatbot to provide instant, context-aware answers about:
+It integrates a RAG-based AI chatbot to provide instant, context-aware
+answers about:
+- Departments & Programs
+- Class Schedules & Lecture Timings
+- Clubs, Labs, and Research Centers
 
-```
-🏛 Departments & Programs
+Students can upload official university documents (PDFs, DOCX), and the
+AI assistant answers queries conversationally, helping freshmen transition
+smoothly into university life.
 
-📅 Class Schedules & Lecture Timings
-🎓 Clubs, Labs, and Research Centers
-
-
-Students can upload official university documents (PDFs), and the AI assistant answers queries conversationally, helping freshmen transition smoothly into university life.
+---
 
 🛠 Tech Stack
-Frontend
 
-⚡ Next.js + TypeScript
+# Frontend
+Next.js + TypeScript
+React 18
+Tailwind CSS (dark/light theme)
+Framer Motion (animations)
+shadcn/ui (UI components)
 
-⚛️ React 18
+# Backend
+Node.js + Express.js + TypeScript
+MongoDB + Mongoose
+JWT Authentication
+bcrypt (password hashing)
+multer (file uploads)
+pdf-parse (PDF text extraction)
+mammoth (DOCX extraction)
+RAG-based AI (OpenAI GPT / Google Gemini)
+Vector Store (local or Pinecone)
+SSE (Server-Sent Events for chatbot streaming)
+dotenv (environment variable management)
+CORS enabled
 
-🎨 Tailwind CSS (with dark/light theme)
-
-✨ Framer Motion (animations)
-
-🧩 shadcn/ui (components)
-
-Backend
-
-🟢 Node.js + Express.js + TypeScript
-
-🗄 MongoDB + Mongoose
-
-🔑 JWT Authentication
-
-🔒 bcrypt (password hashing)
-
-📤 multer (file uploads)
-
-📄 pdf-parse (PDF text extraction)
-
-📝 mammoth (DOCX extraction)
-
-🤖 RAG-based AI (OpenAI GPT / Google Gemini)
-
-🧠 Vector Store (local or Pinecone)
-
-📡 SSE (Server-Sent Events) for chatbot streaming
-
-🌿 dotenv (environment variable management)
-
-🌐 CORS enabled
+---
 
 🎯 Features
-🧑‍🎓 Student Features
 
-✅ Sign up / Log in
+# Student Features
+Sign up / Log in
+View departments & programs
+View class schedules & weekly calendar
+Explore clubs, labs, and research centers
+Chat with AI assistant (context-aware RAG responses)
+View upcoming announcements
+Access previously saved answers (chat history)
 
-✅ View departments & programs
+# Admin Features
+Upload/manage PDFs, DOCX, TXT documents
+Automatic text extraction & embedding creation
+Store vector embeddings for AI retrieval
+Role-based access control
+View chat history (optional)
 
-✅ View class schedules & weekly calendar
+# Bonus Features
+Chat streaming & live suggestions
 
-✅ Explore clubs, labs, and research centers
-
-✅ Chat with AI assistant (context-aware RAG responses)
-
-✅ View upcoming announcements
-
-✅ Access previously saved answers (chat history)
-
-🧑‍💼 Admin Features
-
-✅ Upload/manage PDFs, DOCX, TXT documents
-
-✅ Automatic text extraction & embedding creation
-
-✅ Store vector embeddings for AI retrieval
-
-✅ Role-based access control
-
-✅ View chat history (optional)
-
-🌟 Bonus (Optional)
-
-💬 Chat streaming & live suggestions
-
-
-
+---
 
 ⚙️ Setup Instructions
-Frontend
+
+# Frontend
 cd frontend
 npm install
 npm run dev
+# Open in browser: http://localhost:3000
 
-
-Open in browser: http://localhost:3000
-
-Backend
+# Backend
 cd backend
 npm install
 npm run dev
+# Backend API base URL: http://localhost:5000/api
 
-
-Backend API base URL: http://localhost:5000/api
+---
 
 🔑 Environment Variables
-Backend .env
+
+# Backend .env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 OPENAI_API_KEY=your_openai_or_gemini_api_key
 
-Frontend .env.local
+# Frontend .env.local
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
+
+---
 
 🚀 Running the Project
 
-Start MongoDB (local or cloud)
+# Start MongoDB (local or cloud)
+# Run backend
+npm run dev
+# Run frontend
+npm run dev
+# Visit http://localhost:3000
 
-Run backend: npm run dev
-
-Run frontend: npm run dev
-
-Visit http://localhost:3000
-
-All student and admin features should now be functional.
+---
 
 🧩 Usage
-Students
 
+# Students
 Sign up
-
 Explore departments
-
 View schedules
-
 Chat with AI assistant
 
-Admins
-
+# Admins
 Log in
-
 Upload/manage documents
-
 Monitor AI knowledge base
-
 View chat history
+
+---
 
 📸 Screenshots / Pages
 
