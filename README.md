@@ -21,24 +21,40 @@ smoothly into university life.
 🛠 Tech Stack
 
 # Frontend
+
 Next.js + TypeScript
+
 React 18
 Tailwind CSS (dark/light theme)
+
 Framer Motion (animations)
+
 shadcn/ui (UI components)
 
 # Backend
+
 Node.js + Express.js + TypeScript
+
 MongoDB + Mongoose
+
 JWT Authentication
+
 bcrypt (password hashing)
+
 multer (file uploads)
+
 pdf-parse (PDF text extraction)
+
 mammoth (DOCX extraction)
+
 RAG-based AI (OpenAI GPT / Google Gemini)
+
 Vector Store (local or Pinecone)
+
 SSE (Server-Sent Events for chatbot streaming)
+
 dotenv (environment variable management)
+
 CORS enabled
 
 ---
@@ -46,22 +62,35 @@ CORS enabled
 🎯 Features
 
 # Student Features
+
 Sign up / Log in
+
 View departments & programs
+
 View class schedules & weekly calendar
+
 Explore clubs, labs, and research centers
+
 Chat with AI assistant (context-aware RAG responses)
+
 View upcoming announcements
+
 Access previously saved answers (chat history)
 
 # Admin Features
+
 Upload/manage PDFs, DOCX, TXT documents
+
 Automatic text extraction & embedding creation
+
 Store vector embeddings for AI retrieval
+
 Role-based access control
+
 View chat history (optional)
 
 # Bonus Features
+
 Chat streaming & live suggestions
 
 ---
@@ -69,15 +98,24 @@ Chat streaming & live suggestions
 ⚙️ Setup Instructions
 
 # Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
+
+```
+
 # Open in browser: http://localhost:3000
 
 # Backend
+
+```bash
 cd backend
 npm install
 npm run dev
+
+```
 # Backend API base URL: http://localhost:5000/api
 
 ---
@@ -85,12 +123,17 @@ npm run dev
 🔑 Environment Variables
 
 # Backend .env
+
 PORT=5000
+
 MONGO_URI=your_mongodb_connection_string
+
 JWT_SECRET=your_jwt_secret
+
 OPENAI_API_KEY=your_openai_or_gemini_api_key
 
 # Frontend .env.local
+
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 ---
@@ -98,10 +141,22 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 🚀 Running the Project
 
 # Start MongoDB (local or cloud)
+
 # Run backend
+
+```bash
+
 npm run dev
+
+```
 # Run frontend
+
+```bash
+
 npm run dev
+
+```
+
 # Visit http://localhost:3000
 
 ---
@@ -109,15 +164,23 @@ npm run dev
 🧩 Usage
 
 # Students
+
 Sign up
+
 Explore departments
+
 View schedules
+
 Chat with AI assistant
 
 # Admins
+
 Log in
+
 Upload/manage documents
+
 Monitor AI knowledge base
+
 View chat history
 
 ---
