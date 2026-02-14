@@ -90,6 +90,7 @@ Backend
 💬 Chat streaming & live suggestions
 
 📂 Folder Structure
+
 freshstart-ai/
 ├── frontend/                     # Next.js frontend
 │   ├── src/
@@ -110,13 +111,13 @@ freshstart-ai/
 │   │   ├── services/
 │   │   ├── utils/
 │   │   ├── uploads/
-│   │   
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── .env.example
 ├── shared/                       # Optional shared types
 ├── docker-compose.yml
 └── README.md
+
 
 ⚙️ Setup Instructions
 Frontend
