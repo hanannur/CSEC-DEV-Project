@@ -12,6 +12,7 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,14 +28,19 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await api.get('/auth/me');
-          setCurrentUser(response.data);
-        } catch (error) {
-          localStorage.removeItem('token');
-          setCurrentUser(null);
-        }
+      if (!token) {
+        setIsAuthLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/auth/me');
+        setCurrentUser(response.data);
+      } catch (error) {
+        localStorage.removeItem('token');
+        setCurrentUser(null);
+      } finally {
+        setIsAuthLoading(false);
       }
     };
     checkAuth();
@@ -150,15 +156,35 @@ const App: React.FC = () => {
       <main className="pt-20 min-h-screen">
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage onLogin={handleLoginSuccess} />} />
-          <Route path="/register" element={<RegisterPage onLogin={handleLoginSuccess} />} />
+          {/* <Route path="/login" element={<LoginPage onLogin={handleLoginSuccess} />} />
+          <Route path="/register" element={<RegisterPage onLogin={handleLoginSuccess} />} />*/}
+           <Route
+            path="/login"
+            element={currentUser ? <Navigate to={currentUser.role === 'admin' ? '/admin' : '/student'} replace /> : <LoginPage onLogin={handleLoginSuccess} />}
+          />
           <Route
+            path="/register"
+            element={currentUser ? <Navigate to={currentUser.role === 'admin' ? '/admin' : '/student'} replace /> : <RegisterPage onLogin={handleLoginSuccess} />}
+          />
+          <Route 
             path="/student"
-            element={currentUser ? <StudentDashboard user={currentUser} /> : <Navigate to="/login" />}
+            element={
+              isAuthLoading
+                ? null
+                : currentUser
+                  ? <StudentDashboard user={currentUser} />
+                  : <Navigate to="/login" replace />
+            }
           />
           <Route
             path="/admin"
-            element={currentUser ? <AdminDashboard user={currentUser} /> : <Navigate to="/login" />}
+            element={
+              isAuthLoading
+                ? null
+                : currentUser
+                  ? <AdminDashboard user={currentUser} />
+                  : <Navigate to="/login" replace />
+            }
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

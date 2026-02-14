@@ -95,18 +95,19 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               <span className="text-3xl font-black font-display uppercase tracking-tighter">ጀማሪAI</span>
             </div>
             <h2 className="text-5xl font-black font-display leading-[1.1] mb-6">
-              Empowering <br />
-              <span className="text-teal-200 italic font-light serif">Scholars.</span>
+              Your Smart Guide  <br />
+              <span className="text-teal-200 italic font-light serif">At ASTU</span>
             </h2>
             <p className="text-teal-100 text-lg font-medium opacity-80 max-w-sm">
-              Unified authentication for the Adama Science and Technology University excellence engine.
+              Sign in to explore ASTU departments, view class schedules, check upcoming announcements, and chat with the official AI assistant powered by verified university resources.
+
             </p>
           </div>
 
           <div className="relative z-10 flex items-center gap-4 text-sm font-bold uppercase tracking-widest opacity-60">
             <span>Official Identity Gateway</span>
-            <div className="w-10 h-px bg-white" />
-            <span>v2.4.0</span>
+            {/* <div className="w-10 h-px bg-white" />
+            <span>v2.4.0</span> */}
           </div>
         </div>
 
@@ -129,7 +130,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
           <form onSubmit={handleLogin} className="space-y-5 mb-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 ml-4">Corporate Email</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 ml-4">Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-300" size={18} />
                 <input
@@ -143,7 +144,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 ml-4">Secure Key</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 ml-4">Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-300" size={18} />
                 <input
@@ -161,14 +162,14 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               type="submit"
               className="w-full bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-100 flex items-center justify-center gap-2 transition-all"
             >
-              Secure Sign In
+               Sign In
               <ArrowRight size={18} />
             </button>
           </form>
 
           <div className="flex items-center gap-4 mb-8">
             <div className="flex-1 h-px bg-teal-50" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-teal-300">Social Federated ID</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-teal-300">Identification</span>
             <div className="flex-1 h-px bg-teal-50" />
           </div>
 
@@ -193,7 +194,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               onClick={() => navigate('/register')}
               className="ml-2 text-teal-500 dark:text-teal-300 font-black hover:underline"
             >
-              Start Enrollment
+              Register
             </button>
           </p>
         </div>

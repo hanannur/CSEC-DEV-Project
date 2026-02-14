@@ -84,18 +84,19 @@ const RegisterPage: React.FC<Props> = ({ onLogin }) => {
                             <span className="text-3xl font-black font-display uppercase tracking-tighter">ጀማሪAI</span>
                         </div>
                         <h2 className="text-5xl font-black font-display leading-[1.1] mb-6">
-                            Join the <br />
-                            <span className="text-teal-200 italic font-light serif">Community.</span>
+                            Create Your  <br />
+                            <span className="text-teal-200 italic font-light serif"> First Account Here</span>
                         </h2>
                         <p className="text-teal-100 text-lg font-medium opacity-80 max-w-sm">
-                            Create your official account to access the Adama Science and Technology University digital ecosystem.
+                           Sign up to explore ASTU departments, view class schedules, check upcoming announcements, and chat with the official AI assistant powered by verified university resources.
+
                         </p>
                     </div>
 
                     <div className="relative z-10 flex items-center gap-4 text-sm font-bold uppercase tracking-widest opacity-60">
                         <span>Official Identity Gateway</span>
-                        <div className="w-10 h-px bg-white" />
-                        <span>v2.4.0</span>
+                        {/* <div className="w-10 h-px bg-white" />
+                        <span>v2.4.0</span> */}
                     </div>
                 </div>
 

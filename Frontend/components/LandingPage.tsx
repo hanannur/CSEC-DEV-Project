@@ -32,14 +32,15 @@ const LandingPage: React.FC = () => {
           <div className="relative z-10 p-8 lg:p-12">
             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-teal-50/80 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 border border-teal-100/50 dark:border-teal-800/50 text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm">
               <Sparkles size={14} className="text-teal-500" />
-              <span>Adama Science and Technology University</span>
+              <span>OFFICIAL ASTU FRESH STUDENT ASSISTANT</span>
             </div>
             <h1 className="text-5xl lg:text-7xl font-black font-display text-teal-900 dark:text-white leading-[1.1] tracking-tighter">
-              Innovation for <br />
-              <span className="text-teal-500 italic serif font-light">Sustainable Progress.</span>
+              Your First Year Journey<br />
+              <span className="text-teal-500 italic serif font-light">Starts Here</span>
             </h1>
             <p className="text-lg text-teal-700/80 dark:text-teal-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              ጀማሪAI is the digital heartbeat of ASTU, integrating RAG-powered scholarly intelligence with modern university management.
+              ጀማሪAI is ASTU’s digital assistant designed for fresh students.
+              Get instant answers about departments, schedules, campus services, labs, and student clubs 
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -47,13 +48,13 @@ const LandingPage: React.FC = () => {
                 onClick={() => navigate('/login')}
                 className="px-10 py-5 bg-teal-500 hover:bg-teal-600 text-white rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-200/50 hover:shadow-2xl hover:shadow-teal-300/50 flex items-center justify-center gap-3 transition-all hover:scale-105"
               >
-                Access the Portal <ArrowRight size={18} />
+                Start Exploring <ArrowRight size={18} />
               </button>
-              <button
+              {/* <button
                 className="px-10 py-5 bg-white/90 dark:bg-teal-900/80 backdrop-blur-md border-2 border-teal-100/50 dark:border-teal-800/50 hover:bg-teal-50 text-teal-900 dark:text-white rounded-3xl font-black text-xs uppercase tracking-widest transition-all hover:scale-105 shadow-lg"
               >
                 Academic Calendar
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -68,14 +69,14 @@ const LandingPage: React.FC = () => {
             />
             <div className="absolute -bottom-8 -left-8 bg-teal-500 text-white p-8 rounded-[3rem] shadow-2xl hidden lg:block rotate-[-3deg] backdrop-blur-sm">
               <p className="text-[10px] uppercase tracking-widest font-black opacity-80 mb-2">Research Centers</p>
-              <p className="text-2xl font-black font-display">8 Specialized Hubs</p>
+              <p className="text-2xl font-black font-display">Explore ASTU Innovation Hubs</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Quick Access Bar (Mimicking ASTU home) */}
-      <section className="bg-teal-900 text-white py-12 px-6 lg:px-16 mb-20">
+      {/* <section className="bg-teal-900 text-white py-12 px-6 lg:px-16 mb-20">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { label: 'Admissions', icon: UserCircle2 },
@@ -91,7 +92,7 @@ const LandingPage: React.FC = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
 
 
