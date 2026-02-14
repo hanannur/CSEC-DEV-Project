@@ -470,7 +470,7 @@ const StudentDashboard: React.FC<Props> = ({ user }) => {
 
       {/* ACADEMIC FIELDS GRID */}
       <section className="space-y-8">
-        <h2 className="text-3xl font-black font-display text-teal-900 dark:text-teal-50">Academic Fields</h2>
+        <h2 className="text-3xl font-black font-display text-teal-900 dark:text-teal-50">Academic Streams</h2>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           
           {/* Pre-Engineering Card */}

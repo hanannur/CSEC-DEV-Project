@@ -104,7 +104,7 @@ const RegisterPage: React.FC<Props> = ({ onLogin }) => {
                 <div className="p-12 lg:p-16 flex flex-col justify-center">
                     <div className="mb-10 text-center lg:text-left">
                         <h1 className="text-3xl font-black font-display text-teal-900 dark:text-teal-50 mb-2">
-                            New Enrollment
+                            Register Here
                         </h1>
                         <p className="text-teal-400 font-medium">Create your official university identity.</p>
                     </div>
