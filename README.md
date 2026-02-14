@@ -1,4 +1,6 @@
-🌟 FreshStart AI – ASTU Student Assistant
+   🌟 FreshStart AI – ASTU Student Assistant
+
+```
 
 📌 Project Overview
 
