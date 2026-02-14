@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Document from '../models/Document';
 import fs from 'fs';
 import pdf from 'pdf-parse';
-import { chunkText, generateEmbedding, extractCalendarEvents, extractTextFromFile } from '../services/ragService';
+import { chunkText, generateEmbedding, extractCalendarEvents, extractTextFromFile , logAllEmbeddingLengths } from '../services/ragService';
 import Embedding from '../models/Embedding';
 
 export const embedText = async (req: any, res: Response) => {
@@ -45,7 +45,7 @@ export const embedText = async (req: any, res: Response) => {
         document.chunks = embeddingIds;
         document.status = 'Indexed';
         await document.save();
-
+        await logAllEmbeddingLengths();
         res.status(201).json({
             message: 'Text embedded successfully',
             documentId: document._id,
@@ -108,7 +108,7 @@ export const uploadDocument = async (req: any, res: Response) => {
 
         // Index the document (Waiting for completion as per user request to return chunk count)
         const chunksIndexed = await processDocument(document._id.toString());
-
+                await logAllEmbeddingLengths();
         res.status(201).json({
             message: 'PDF uploaded and indexed successfully',
             chunksIndexed

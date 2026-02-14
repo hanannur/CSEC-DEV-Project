@@ -10,13 +10,13 @@ import CalendarEvent from '../models/CalendarEvent';
 dotenv.config();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
+const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
 if (!GEMINI_API_KEY) {
     console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
 
-if (!GEMINI_API_KEY) {
-    console.warn('WARNING: GEMINI_API_KEY is not defined in environment variables. RAG service will not function correctly.');
+if (!VOYAGE_API_KEY) {
+    console.warn('WARNING: VOYAGE_API_KEY is not defined in environment variables. RAG service will not function correctly.');
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
@@ -87,30 +87,54 @@ export const chunkText = (text: string, size = 600, overlap = 100): string[] => 
 //         throw new Error(`Embedding failed: ${error.message}`);
 //     }
 // };
+
+
+// Use Voyage-3-large for all embeddings
 export const generateEmbedding = async (text: string): Promise<number[]> => {
+    
+      if (!VOYAGE_API_KEY) throw new Error('VOYAGE_API_KEY is not set in environment variables.');
     try {
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
+            'https://api.voyageai.com/v1/embeddings',
             {
-                content: {
-                    parts: [{ text }]
+                model: 'voyage-3-large',
+                input: text
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${VOYAGE_API_KEY}`,
+                    'Content-Type': 'application/json'
                 }
             }
-        );
-
-        const embedding = response.data.embedding?.values;
-
-        if (!embedding) {
-            throw new Error("No embedding values returned.");
+            );
+        let embedding = response.data?.data?.[0]?.embedding;
+        if (Array.isArray(embedding) && embedding.length === 1024) {
+            console.log('[RAG] Voyage embedding length:', embedding.length);
+            return embedding;
         }
 
-        return embedding;
-    } catch (error: any) {
-        console.error("Embedding API error:", error?.response?.data || error.message);
-        throw new Error("Embedding failed. Check API key or model access.");
+        // If batch, use first
+        if (Array.isArray(embedding) && Array.isArray(embedding[0]) && embedding[0].length === 1024) {
+            console.warn('[RAG] Voyage returned batch, using first vector.');
+            return embedding[0];
+        }
+        throw new Error('Voyage API did not return a 1024-dim embedding.');
+    } catch (err: any) {
+        console.error('[RAG] Voyage embedding error:', err?.response?.data || err.message || err);
+        throw new Error('Voyage embedding failed.');
     }
 };
 
+
+    export const logAllEmbeddingLengths = async () => {
+    const all = await Embedding.find({}, { embedding: 1 });
+    const dimCounts: Record<string, number> = {};
+    all.forEach(e => {
+        const len = Array.isArray(e.embedding) ? e.embedding.length : 'not-array';
+        dimCounts[len] = (dimCounts[len] || 0) + 1;
+    });
+    console.log('Embedding dimension counts in DB:', dimCounts);
+};
 
 export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
     let dotProduct = 0;
@@ -124,22 +148,37 @@ export const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 };
 
-export const getRelevantContext = async (query: string, topK: number = 5): Promise<string> => {
-    const queryEmbedding = await generateEmbedding(query);
-    const allEmbeddings = await Embedding.find();
 
-    const similarities = allEmbeddings.map(emb => ({
-        text: emb.text,
-        similarity: cosineSimilarity(queryEmbedding, emb.embedding)
-    }));
+export const searchSimilarEmbeddings = async (query: string, topK: number = 5): Promise<string> => {
+        // Generate embedding for the query
+        const queryEmbedding = await generateEmbedding(query);
+        // Use MongoDB Atlas vector search index for efficient similarity search
+        const results = await Embedding.aggregate([
+            {
+                $vectorSearch: {
+                    index: "default", // Change if your index name is different
+                    path: "embedding",
+                    queryVector: queryEmbedding,
+                    numCandidates: 100, // Adjust as needed for recall/performance
+                    limit: topK,
+                    //similarity: "cosine"
+                }
+            },
+            {
+                $project: {
+                    text: 1,
+                    similarity: { $meta: "vectorSearchScore" }
+                }
+            }
+        ]);
+        return results.map(r => r.text).join('\n\n---\n\n');
+    };
+    
+    // Backwards-compatible wrapper used by chatController
+    export const getRelevantContext = async (query: string, topK: number = 5): Promise<string> => {
+        return await searchSimilarEmbeddings(query, topK);
+    };
 
-    similarities.sort((a, b) => b.similarity - a.similarity);
-
-    return similarities
-        .slice(0, topK)
-        .map(s => s.text)
-        .join('\n\n---\n\n');
-};
 
 export const generateAIResponse = async (query: string, context: string): Promise<string> => {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
