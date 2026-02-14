@@ -189,27 +189,38 @@ View chat history
 
 📸 Screenshots / Pages
 
-Home / Landing Page
+
+### Home / Landing Page
+
 <img width="1873" height="988" alt="image" src="https://github.com/user-attachments/assets/441f0d0c-b73d-471b-8469-ac8f6f53fd4d" />
+
 <img width="1858" height="919" alt="image" src="https://github.com/user-attachments/assets/a72ca955-5e36-4a77-ba24-7c1b249e6285" />
 
 
 
-Register
+### Register
+
 <img width="1829" height="952" alt="image" src="https://github.com/user-attachments/assets/8639bf2c-1794-48ff-a84d-1382177b56fe" />
 
-Login Page
+
+### Login Page
+
 <img width="1838" height="973" alt="image" src="https://github.com/user-attachments/assets/e8889ab4-88a8-4b99-8201-44a235ed550c" />
 
-Student Dashboard
+### Student Dashboard
+
 <img width="1830" height="990" alt="image" src="https://github.com/user-attachments/assets/368ab041-8e78-4add-afd5-327dbfbd435b" />
+
 <img width="1806" height="989" alt="image" src="https://github.com/user-attachments/assets/d49dbd37-b584-4932-aca2-cdc6e8ba1556" />
 
-Admin Dashboard
+### Admin Dashboard
+
 <img width="1823" height="985" alt="image" src="https://github.com/user-attachments/assets/d5ef87bf-91b4-4d68-8fa4-d287610d9528" />
+
 <img width="1746" height="849" alt="image" src="https://github.com/user-attachments/assets/6200a426-de59-48ff-a396-a927768e1a2b" />
 
-Departments Demo 
+### Departments Demo 
+
 <img width="1661" height="914" alt="image" src="https://github.com/user-attachments/assets/525a234f-d3f3-4649-87d1-a096b91673ff" />
 
 
