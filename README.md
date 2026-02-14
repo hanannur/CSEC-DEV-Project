@@ -1,12 +1,13 @@
  🌟 FreshStart AI – ASTU Student Assistant
 
-
+```bash
 📌 Project Overview
 
 FreshStart AI is a modern web platform designed to help first-year students at Adama Science and Technology University (ASTU) navigate their academic environment efficiently.
 
 It integrates a RAG-based AI chatbot to provide instant, context-aware answers about:
 
+```
 🏛 Departments & Programs
 
 📅 Class Schedules & Lecture Timings
